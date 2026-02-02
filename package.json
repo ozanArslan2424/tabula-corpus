@@ -25,9 +25,7 @@
 	"scripts": {
 		"fm": "bunx --bun prettier --write .",
 		"lint": "bunx oxlint -c ./.oxlintrc.json --fix",
-		"build": "bun run build.ts",
-		"build:declaration": "tsc --emitDeclarationOnly --project tsconfig.types.json",
-		"postbuild": "rimraf tsconfig.types.tsbuildinfo"
+		"build": "bun run build.ts"
 	},
 	"devDependencies": {
 		"@types/bun": "latest",
