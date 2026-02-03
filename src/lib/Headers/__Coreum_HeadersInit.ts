@@ -1,4 +1,4 @@
-import type { __Coreum_HeaderKey } from "./__Coreum_HeaderKey";
+import type { __Coreum_HeaderKey } from "@/lib/Headers/__Coreum_HeaderKey";
 
 export type __Coreum_HeadersInit =
 	| (Record<string, string> & {

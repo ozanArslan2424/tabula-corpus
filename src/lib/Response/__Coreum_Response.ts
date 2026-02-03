@@ -1,8 +1,8 @@
+import { __Coreum_Headers } from "@/lib/Headers/__Coreum_Headers";
+import type { __Coreum_ResponseBody } from "@/lib/Response/__Coreum_ResponseBody";
+import type { __Coreum_ResponseInit } from "@/lib/Response/__Coreum_ResponseInit";
+import { __Coreum_Status } from "@/lib/Status/__Coreum_Status";
 import { isJSONSerializable } from "@/utils/isJSONSerializable";
-import { __Coreum_Headers } from "../Headers/__Coreum_Headers";
-import { __Coreum_Status } from "../Status/__Coreum_Status";
-import type { __Coreum_ResponseBody } from "./__Coreum_ResponseBody";
-import type { __Coreum_ResponseInit } from "./__Coreum_ResponseInit";
 
 export class __Coreum_Response<R = unknown> {
 	headers: __Coreum_Headers;

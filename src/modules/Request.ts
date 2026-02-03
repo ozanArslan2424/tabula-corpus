@@ -1,4 +1,4 @@
-import type { __Coreum_Request } from "@/lib/Request/__Coreum_Request";
+import { __Coreum_Request } from "@/lib/Request/__Coreum_Request";
 
 /**
  * Core.Request includes a cookie jar, better headers, and some utilities.

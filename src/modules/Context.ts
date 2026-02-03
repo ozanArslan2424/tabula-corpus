@@ -1,4 +1,4 @@
-import type { __Coreum_Context } from "@/lib/Context/__Coreum_Context";
+import { __Coreum_Context } from "@/lib/Context/__Coreum_Context";
 
 /**
  * The context object used in Route "callback" parameter.

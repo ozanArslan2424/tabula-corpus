@@ -1,4 +1,4 @@
-import type { __Coreum_OnlyBun_HTMLBundle } from "../HTMLBundle/__Coreum_OnlyBun_HTMLBundle";
+import type { __Coreum_OnlyBun_HTMLBundle } from "@/lib/HTMLBundle/__Coreum_OnlyBun_HTMLBundle";
 
 export interface __Coreum_ServeOptions {
 	port: number;

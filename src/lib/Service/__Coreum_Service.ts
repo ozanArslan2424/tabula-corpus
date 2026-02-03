@@ -1,12 +1,14 @@
 import { __Coreum_Method } from "@/lib/Method/__Coreum_Method";
-import type { __Coreum_MiddlewareCallback } from "../Middleware/__Coreum_MiddlewareCallback";
-import { __Coreum_Route } from "../Route/__Coreum_Route";
-import { type __Coreum_RouteSchemas } from "../Route/__Coreum_RouteSchemas";
-import { type __Coreum_RouteCallback } from "../Route/__Coreum_RouteCallback";
-import { type __Coreum_RouteDefinition } from "../Route/__Coreum_RouteDefinition";
+import type { __Coreum_MiddlewareCallback } from "@/lib/Middleware/__Coreum_MiddlewareCallback";
+import { __Coreum_Route } from "@/lib/Route/__Coreum_Route";
+import type { __Coreum_RouteCallback } from "@/lib/Route/__Coreum_RouteCallback";
+import type { __Coreum_RouteDefinition } from "@/lib/Route/__Coreum_RouteDefinition";
+import type { __Coreum_RouteSchemas } from "@/lib/Route/__Coreum_RouteSchemas";
 
 export class __Coreum_Service {
-	protected makeMiddlewareHandler<D = void>(callback: __Coreum_MiddlewareCallback<D>) {
+	protected makeMiddlewareHandler<D = void>(
+		callback: __Coreum_MiddlewareCallback<D>,
+	) {
 		return callback;
 	}
 

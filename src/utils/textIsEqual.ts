@@ -1,4 +1,8 @@
-export function textIsEqual(source: string, target: string, modifier?: "upper" | "lower") {
+export function textIsEqual(
+	source: string,
+	target: string,
+	modifier?: "upper" | "lower",
+) {
 	source = source.trim();
 	target = target.trim();
 

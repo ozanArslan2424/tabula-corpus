@@ -1,4 +1,4 @@
-import type { __Coreum_CommonHeaders } from "@/lib/CommonHeaders/__Coreum_CommonHeaders";
+import { __Coreum_CommonHeaders } from "@/lib/CommonHeaders/__Coreum_CommonHeaders";
 
 /**
  * Just some common headers.

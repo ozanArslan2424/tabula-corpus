@@ -1,4 +1,4 @@
-import type { __Coreum_Cors } from "@/lib/Cors/__Coreum_Cors";
+import { __Coreum_Cors } from "@/lib/Cors/__Coreum_Cors";
 
 /**
  * Simple cors helper object to set cors headers

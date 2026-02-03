@@ -1,8 +1,8 @@
-import { __Coreum_OnlyBun_Cookies } from "./__Coreum_OnlyBun_Cookies";
-import type { __Coreum_CookieOptions } from "./__Coreum_CookieOptions";
 import { textIsDefined } from "@/utils/textIsDefined";
 import { textAfterMark } from "@/utils/textAfterMark";
 import { capitalize } from "@/utils/capitalize";
+import type { __Coreum_CookieOptions } from "@/lib/Cookies/__Coreum_CookieOptions";
+import { __Coreum_OnlyBun_Cookies } from "@/lib/Cookies/__Coreum_OnlyBun_Cookies";
 
 export class __Coreum_Cookies extends __Coreum_OnlyBun_Cookies {
 	constructor() {

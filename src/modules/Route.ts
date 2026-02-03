@@ -1,4 +1,4 @@
-import type { __Coreum_Route } from "@/lib/Route/__Coreum_Route";
+import { __Coreum_Route } from "@/lib/Route/__Coreum_Route";
 
 /**
  * The object to define an endpoint. Can be instantiated with "new" or inside a controller

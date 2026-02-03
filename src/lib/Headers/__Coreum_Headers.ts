@@ -1,6 +1,6 @@
+import type { __Coreum_HeaderKey } from "@/lib/Headers/__Coreum_HeaderKey";
+import type { __Coreum_HeadersInit } from "@/lib/Headers/__Coreum_HeadersInit";
 import { getEntries } from "@/utils/getEntries";
-import type { __Coreum_HeaderKey } from "./__Coreum_HeaderKey";
-import type { __Coreum_HeadersInit } from "./__Coreum_HeadersInit";
 
 export class __Coreum_Headers extends Headers {
 	constructor(init?: __Coreum_HeadersInit) {
@@ -19,7 +19,10 @@ export class __Coreum_Headers extends Headers {
 	 * @param source This is the one that's values are copied.
 	 * @param target This is the one you get back.
 	 * */
-	static combine(source: __Coreum_Headers, target: __Coreum_Headers): __Coreum_Headers {
+	static combine(
+		source: __Coreum_Headers,
+		target: __Coreum_Headers,
+	): __Coreum_Headers {
 		source.forEach((value, key) => {
 			if (key.toLowerCase() === "set-cookie") {
 				target.append(key, value);

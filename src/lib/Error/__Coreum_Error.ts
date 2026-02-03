@@ -1,4 +1,4 @@
-import type { __Coreum_Status } from "../Status/__Coreum_Status";
+import type { __Coreum_Status } from "@/lib/Status/__Coreum_Status";
 
 export class __Coreum_Error extends Error {
 	constructor(

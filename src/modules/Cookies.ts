@@ -1,4 +1,4 @@
-import type { __Coreum_Cookies } from "@/lib/Cookies/__Coreum_Cookies";
+import { __Coreum_Cookies } from "@/lib/Cookies/__Coreum_Cookies";
 
 /**
  * TODO: Only available in Bun runtime at the moment.

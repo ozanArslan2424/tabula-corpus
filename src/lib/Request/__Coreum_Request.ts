@@ -1,12 +1,12 @@
 import { __Coreum_CommonHeaders } from "@/lib/CommonHeaders/__Coreum_CommonHeaders";
-import { __Coreum_Cookies } from "../Cookies/__Coreum_Cookies";
-import { __Coreum_Headers } from "../Headers/__Coreum_Headers";
 import { __Coreum_Method } from "@/lib/Method/__Coreum_Method";
-import type { __Coreum_RequestInfo } from "./__Coreum_RequestInfo";
-import type { __Coreum_RequestInit } from "./__Coreum_RequestInit";
 import { getValues } from "@/utils/getValues";
 import { textSplit } from "@/utils/textSplit";
 import { textIsFoundIn } from "@/utils/textIsFoundIn";
+import { __Coreum_Cookies } from "@/lib/Cookies/__Coreum_Cookies";
+import { __Coreum_Headers } from "@/lib/Headers/__Coreum_Headers";
+import type { __Coreum_RequestInfo } from "@/lib/Request/__Coreum_RequestInfo";
+import type { __Coreum_RequestInit } from "@/lib/Request/__Coreum_RequestInit";
 
 export class __Coreum_Request extends Request {
 	readonly cookies = new __Coreum_Cookies();
@@ -22,14 +22,21 @@ export class __Coreum_Request extends Request {
 	}
 
 	get isMethodNotAllowed() {
-		return !getValues(__Coreum_Method).includes(this.method.toUpperCase() as __Coreum_Method);
+		return !getValues(__Coreum_Method).includes(
+			this.method.toUpperCase() as __Coreum_Method,
+		);
 	}
 
 	get isPreflight() {
 		const accessControlRequestMethodHeader =
 			this.headers.get(__Coreum_CommonHeaders.AccessControlRequestMethod) ||
-			this.headers.get(__Coreum_CommonHeaders.AccessControlRequestMethod.toLowerCase());
-		return this.method === __Coreum_Method.OPTIONS && accessControlRequestMethodHeader;
+			this.headers.get(
+				__Coreum_CommonHeaders.AccessControlRequestMethod.toLowerCase(),
+			);
+		return (
+			this.method === __Coreum_Method.OPTIONS &&
+			accessControlRequestMethodHeader
+		);
 	}
 
 	get contentType() {
@@ -51,7 +58,9 @@ export class __Coreum_Request extends Request {
 
 		if (contentTypeHeader.includes("application/json")) {
 			return "json";
-		} else if (contentTypeHeader.includes("application/x-www-form-urlencoded")) {
+		} else if (
+			contentTypeHeader.includes("application/x-www-form-urlencoded")
+		) {
 			return "form-urlencoded";
 		} else if (contentTypeHeader.includes("multipart/form-data")) {
 			return "form-data";

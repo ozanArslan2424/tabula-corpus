@@ -1,4 +1,4 @@
-import type { __Coreum_Method } from "@/lib/Method/__Coreum_Method";
+import { __Coreum_Method } from "@/lib/Method/__Coreum_Method";
 
 /**
  * Commonly used HTTP verbs.

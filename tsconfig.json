@@ -10,9 +10,7 @@
 		"outDir": "dist",
 		"resolveJsonModule": true,
 		"paths": {
-			"@/*": [
-				"./src/*"
-			]
+			"@/*": ["./src/*"]
 		},
 		"verbatimModuleSyntax": true,
 		"noFallthroughCasesInSwitch": true,

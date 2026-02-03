@@ -1,4 +1,4 @@
-import type { __Coreum_Headers } from "@/lib/Headers/__Coreum_Headers";
+import { __Coreum_Headers } from "@/lib/Headers/__Coreum_Headers";
 
 /**
  * Headers is extended to include helpers and intellisense for common

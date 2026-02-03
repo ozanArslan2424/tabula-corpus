@@ -23,8 +23,10 @@ export class __Coreum_Controller {
 		callback: __Coreum_RouteCallback<D, R, B, S, P>,
 		schemas?: __Coreum_RouteSchemas<R, B, S, P>,
 	): __Coreum_Route<D, R, B, S, P> {
-		const method = typeof definition === "string" ? __Coreum_Method.GET : definition.method;
-		const rawPath = typeof definition === "string" ? definition : definition.path;
+		const method =
+			typeof definition === "string" ? __Coreum_Method.GET : definition.method;
+		const rawPath =
+			typeof definition === "string" ? definition : definition.path;
 		const globalPrefix = __Coreum_getGlobalPrefix();
 
 		const path = textIsDefined(globalPrefix)
@@ -33,7 +35,12 @@ export class __Coreum_Controller {
 
 		definition = { method, path };
 
-		const route = new __Coreum_Route<D, R, B, S, P>(method, path, callback, schemas);
+		const route = new __Coreum_Route<D, R, B, S, P>(
+			method,
+			path,
+			callback,
+			schemas,
+		);
 		this.routes.push(route);
 		return route;
 	}

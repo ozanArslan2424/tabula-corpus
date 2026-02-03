@@ -1,4 +1,4 @@
-import type { __Coreum_Server } from "@/lib/Server/__Coreum_Server";
+import { __Coreum_Server } from "@/lib/Server/__Coreum_Server";
 
 /**
  * Server is the entrypoint to the app.

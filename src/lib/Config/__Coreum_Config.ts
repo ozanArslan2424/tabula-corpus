@@ -1,5 +1,5 @@
-import type { __Coreumum_ConfigEnvKey } from "@/lib/Config/__Coreum_ConfigEnvKey";
-import type { __Coreumum_ConfigValueParser } from "@/lib/Config/__Coreum_ConfigValueParser";
+import type { __Coreum_ConfigEnvKey } from "@/lib/Config/__Coreum_ConfigEnvKey";
+import type { __Coreum_ConfigValueParser } from "@/lib/Config/__Coreum_ConfigValueParser";
 import { __Coreum_getRuntime } from "@/lib/runtime/__Coreum_getRuntime";
 import { __Coreum_RuntimeOptions } from "@/lib/runtime/__Coreum_RuntimeOptions";
 import "dotenv/config";
@@ -18,8 +18,8 @@ export class __Coreum_Config {
 	}
 
 	static get<T = string>(
-		key: __Coreumum_ConfigEnvKey,
-		opts?: { parser?: __Coreumum_ConfigValueParser<T>; fallback?: T },
+		key: __Coreum_ConfigEnvKey,
+		opts?: { parser?: __Coreum_ConfigValueParser<T>; fallback?: T },
 	): T {
 		const value = this.env[key];
 		if (value !== undefined && value !== "") {

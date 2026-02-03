@@ -1,11 +1,11 @@
-import { __Coreum_Response } from "../Response/__Coreum_Response";
 import type { __Coreum_Method } from "@/lib/Method/__Coreum_Method";
-import type { __Coreum_Endpoint } from "./__Coreum_Endpoint";
-import type { __Coreum_RouteCallback } from "./__Coreum_RouteCallback";
-import type { __Coreum_RouteSchemas } from "./__Coreum_RouteSchemas";
-import type { __Coreum_RouteHandler } from "./__Coreum_RouteHandler";
 import { __Coreum_Context } from "@/lib/Context/__Coreum_Context";
 import { textSplit } from "@/utils/textSplit";
+import { __Coreum_Response } from "@/lib/Response/__Coreum_Response";
+import type { __Coreum_Endpoint } from "@/lib/Route/__Coreum_Endpoint";
+import type { __Coreum_RouteCallback } from "@/lib/Route/__Coreum_RouteCallback";
+import type { __Coreum_RouteHandler } from "@/lib/Route/__Coreum_RouteHandler";
+import type { __Coreum_RouteSchemas } from "@/lib/Route/__Coreum_RouteSchemas";
 
 export class __Coreum_Route<
 	D = undefined,

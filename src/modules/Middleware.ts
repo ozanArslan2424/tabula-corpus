@@ -1,4 +1,4 @@
-import type { __Coreum_Middleware } from "@/lib/Middleware/__Coreum_Middleware";
+import { __Coreum_Middleware } from "@/lib/Middleware/__Coreum_Middleware";
 
 /**
  * Simple middleware that runs before the Route "callback" parameters.

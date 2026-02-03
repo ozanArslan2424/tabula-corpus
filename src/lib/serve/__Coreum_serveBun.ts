@@ -1,4 +1,4 @@
-import type { __Coreum_ServeOptions } from "./__Coreum_ServeOptions";
+import type { __Coreum_ServeOptions } from "@/lib/serve/__Coreum_ServeOptions";
 
 export function __Coreum_serveBun(options: __Coreum_ServeOptions) {
 	Bun.serve({

@@ -1,4 +1,6 @@
-export function joinPathSegments(...segments: (string | undefined)[]): `/${string}` {
+export function joinPathSegments(
+	...segments: (string | undefined)[]
+): `/${string}` {
 	const joined = segments
 		.filter(
 			(segment): segment is string =>

@@ -1,6 +1,5 @@
 import { type __Coreum_DBClientInterface } from "@/lib/DBClient/__Coreum_DBClientInterface";
 import { type __Coreum_ServeOptions } from "@/lib/serve/__Coreum_ServeOptions";
-import { __Coreum_Request } from "../Request/__Coreum_Request";
 import { __Coreum_getRuntime } from "@/lib/runtime/__Coreum_getRuntime";
 import { __Coreum_serve } from "@/lib/serve/__Coreum_serve";
 import { __Coreum_Controller } from "@/lib/Controller/__Coreum_Controller";
@@ -10,10 +9,11 @@ import { type __Coreum_OnlyBun_HTMLBundle } from "@/lib/HTMLBundle/__Coreum_Only
 import { __Coreum_Route } from "@/lib/Route/__Coreum_Route";
 import { __Coreum_Response } from "@/lib/Response/__Coreum_Response";
 import { __Coreum_Status } from "@/lib/Status/__Coreum_Status";
-import type { __Coreum_ErrorCallback } from "./__Coreum_ErrorCallback";
-import type { __Coreum_FetchCallback } from "./__Coreum_FetchCallback";
-import type { __Coreum_ServerOptions } from "./__Coreum_ServerOptions";
 import { textIsEqual } from "@/utils/textIsEqual";
+import { __Coreum_Request } from "@/lib/Request/__Coreum_Request";
+import type { __Coreum_ErrorCallback } from "@/lib/Server/__Coreum_ErrorCallback";
+import type { __Coreum_FetchCallback } from "@/lib/Server/__Coreum_FetchCallback";
+import type { __Coreum_ServerOptions } from "@/lib/Server/__Coreum_ServerOptions";
 
 export class __Coreum_Server {
 	// TODO: Update logger
@@ -107,23 +107,30 @@ export class __Coreum_Server {
 		if (this.onNotFound) {
 			return this.onNotFound(req);
 		}
-		return new __Coreum_Response(`${req.method} on ${req.url} does not exist.`, {
-			status: __Coreum_Status.NOT_FOUND,
-		});
+		return new __Coreum_Response(
+			`${req.method} on ${req.url} does not exist.`,
+			{
+				status: __Coreum_Status.NOT_FOUND,
+			},
+		);
 	};
 
 	private handleError: __Coreum_ErrorCallback = async (err) => {
 		if (this.onError) {
 			return this.onError(err);
 		}
-		return new __Coreum_Response(err, { status: __Coreum_Status.INTERNAL_SERVER_ERROR });
+		return new __Coreum_Response(err, {
+			status: __Coreum_Status.INTERNAL_SERVER_ERROR,
+		});
 	};
 
 	private findMatchingRoute(req: __Coreum_Request): __Coreum_Route | undefined {
 		const url = new URL(req.url);
 		let path = url.pathname;
 		return Array.from(this.routes.values()).find(
-			(route) => path.match(route.pattern) && textIsEqual(req.method, route.method, "upper"),
+			(route) =>
+				path.match(route.pattern) &&
+				textIsEqual(req.method, route.method, "upper"),
 		);
 	}
 

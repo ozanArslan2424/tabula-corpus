@@ -1,1 +1,1 @@
-export type __Coreumum_ConfigValueParser<T> = (value: string) => T;
+export type __Coreum_ConfigValueParser<T> = (value: string) => T;

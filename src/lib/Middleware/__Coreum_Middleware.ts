@@ -1,14 +1,19 @@
 import { __Coreum_Context } from "@/lib/Context/__Coreum_Context";
 import type { __Coreum_Controller } from "@/lib/Controller/__Coreum_Controller";
-import type { __Coreum_MiddlewareCallback } from "./__Coreum_MiddlewareCallback";
-import type { __Coreum_MiddlewareProvider } from "./__Coreum_MiddlewareProvider";
+import type { __Coreum_MiddlewareCallback } from "@/lib/Middleware/__Coreum_MiddlewareCallback";
+import type { __Coreum_MiddlewareProvider } from "@/lib/Middleware/__Coreum_MiddlewareProvider";
 import { isObjectWith } from "@/utils/isObjectWith";
 
 export class __Coreum_Middleware<D = void> {
 	private callback: __Coreum_MiddlewareCallback<D>;
 
-	constructor(argument: __Coreum_MiddlewareCallback<D> | __Coreum_MiddlewareProvider<D>) {
-		this.callback = isObjectWith<__Coreum_MiddlewareProvider<D>>(argument, "middleware")
+	constructor(
+		argument: __Coreum_MiddlewareCallback<D> | __Coreum_MiddlewareProvider<D>,
+	) {
+		this.callback = isObjectWith<__Coreum_MiddlewareProvider<D>>(
+			argument,
+			"middleware",
+		)
 			? argument.middleware
 			: argument;
 	}

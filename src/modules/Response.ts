@@ -1,4 +1,4 @@
-import type { __Coreum_Response } from "@/lib/Response/__Coreum_Response";
+import { __Coreum_Response } from "@/lib/Response/__Coreum_Response";
 
 /**
  * This is NOT the default response. It provides {@link Response.response}

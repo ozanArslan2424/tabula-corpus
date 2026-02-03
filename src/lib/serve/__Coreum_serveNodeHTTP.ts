@@ -1,5 +1,5 @@
+import type { __Coreum_ServeOptions } from "@/lib/serve/__Coreum_ServeOptions";
 import http from "node:http";
-import type { __Coreum_ServeOptions } from "./__Coreum_ServeOptions";
 
 export function __Coreum_serveNodeHTTP(options: __Coreum_ServeOptions) {
 	http

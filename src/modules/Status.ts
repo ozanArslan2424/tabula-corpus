@@ -1,4 +1,4 @@
-import type { __Coreum_Status } from "@/lib/Status/__Coreum_Status";
+import { __Coreum_Status } from "@/lib/Status/__Coreum_Status";
 
 /**
  * Commonly used HTTP status codes.
