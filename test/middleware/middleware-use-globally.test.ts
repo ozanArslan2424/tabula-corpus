@@ -29,30 +29,20 @@ const register = (pfx: string) => {
 };
 
 describe("Middleware Data", () => {
-	it("use (Global) - One Middleware", async () => {
-		const mw1 = new Middleware((c) => {
-			c.data = {
-				hello: "world",
-			};
-		});
-		register("/use");
-		mw1.use();
-		const res = await testServer.handle(req("/use/one", { method: "GET" }));
-		expect(await res.json()).toEqual({ hello: "world" });
-	});
-
 	it("useGlobally - Two Middlewares No Override", async () => {
-		const mw1 = new Middleware((c) => {
-			c.data = {
-				hello: "world",
-			};
+		new Middleware({
+			useOn: "*",
+			handler: (c) => {
+				c.data = { hello: "world" };
+			},
 		});
-		const mw2 = new Middleware((c) => {
-			c.data.ozan = "arslan";
+		new Middleware({
+			useOn: "*",
+			handler: (c) => {
+				c.data.ozan = "arslan";
+			},
 		});
 		register("/two");
-		mw2.useGlobally();
-		mw1.useGlobally();
 		const res = await testServer.handle(req("/two/two", { method: "GET" }));
 		expect(await res.json()).toEqual({
 			hello: "world",
@@ -61,17 +51,20 @@ describe("Middleware Data", () => {
 	});
 
 	it("useGlobally - Two Middlewares WITH Override", async () => {
-		const mw1 = new Middleware((c) => {
-			c.data.ozan = "arslan";
+		new Middleware({
+			useOn: "*",
+			handler: (c) => {
+				c.data.ozan = "arslan";
+			},
 		});
-		const mw2 = new Middleware((c) => {
-			c.data = {
-				hello: "world",
-			};
+		new Middleware({
+			useOn: "*",
+			handler: (c) => {
+				c.data = { hello: "world" };
+			},
 		});
+
 		register("/three");
-		mw2.useGlobally();
-		mw1.useGlobally();
 		const res = await testServer.handle(
 			req("/three/two/override", { method: "GET" }),
 		);

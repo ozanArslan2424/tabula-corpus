@@ -1,7 +1,8 @@
 import type { RouteHandler } from "@/modules/Route/types/RouteHandler";
 import type { RouteId } from "@/modules/Route/types/RouteId";
-import type { RouteSchemas } from "@/modules/Parser/types/RouteSchemas";
+import type { RouteModel } from "@/modules/Parser/types/RouteSchemas";
 import type { Method } from "@/modules/HttpRequest/enums/Method";
+import type { ControllerId } from "@/modules/Controller/types/ControllerId";
 
 export interface RouteInterface<
 	Path extends string = string,
@@ -11,8 +12,8 @@ export interface RouteInterface<
 	P = unknown,
 > {
 	handler: RouteHandler<R, B, S, P>;
-	readonly schemas?: RouteSchemas<R, B, S, P>;
-	controllerId?: string;
+	readonly model?: RouteModel<R, B, S, P>;
+	readonly controllerId?: ControllerId;
 	get path(): Path;
 	get method(): Method;
 	get pattern(): RegExp;

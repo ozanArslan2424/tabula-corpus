@@ -10,68 +10,123 @@ const path = pathMaker(prefix);
 const req = reqMaker(prefix);
 
 describe("Middleware Data", () => {
-	it("use (Route) - One Middleware", async () => {
-		const mw1 = new Middleware((c) => {
-			c.data = {
-				hello: "world",
-			};
-		});
-		mw1.use(new Route({ method: "GET", path: path("/use") }, (c) => c.data));
-		const res = await testServer.handle(req("/use", { method: "GET" }));
-		expect(await res.json()).toEqual({ hello: "world" });
-	});
-
 	it("useOnRoute - One Middleware", async () => {
-		const mw1 = new Middleware((c) => {
-			c.data = {
-				hello: "world",
-			};
-		});
-		mw1.useOnRoute(
-			new Route({ method: "GET", path: path("/one") }, (c) => c.data),
+		const route = new Route(
+			{ method: "GET", path: path("/one") },
+			(c) => c.data,
 		);
+		new Middleware({
+			useOn: route,
+			handler: (c) => {
+				c.data = { hello: "world" };
+			},
+		});
+
 		const res = await testServer.handle(req("/one", { method: "GET" }));
 		expect(await res.json()).toEqual({ hello: "world" });
 	});
 
 	it("useOnRoute - Two Middlewares No Override", async () => {
-		const mw1 = new Middleware((c) => {
-			c.data = {
-				hello: "world",
-			};
-		});
-		const mw2 = new Middleware((c) => {
-			c.data.ozan = "arslan";
-		});
-		mw1.useOnRoute(
-			mw2.useOnRoute(
-				new Route({ method: "GET", path: path("/two") }, (c) => c.data),
-			),
+		const route = new Route(
+			{ method: "GET", path: path("/two") },
+			(c) => c.data,
 		);
+		new Middleware({
+			useOn: route,
+			handler: (c) => {
+				c.data = { hello: "world" };
+			},
+		});
+		new Middleware({
+			useOn: route,
+			handler: (c) => {
+				c.data.ozan = "arslan";
+			},
+		});
 		const res = await testServer.handle(req("/two", { method: "GET" }));
 		expect(await res.json()).toEqual({ hello: "world", ozan: "arslan" });
 	});
 
 	it("useOnRoute - Two Middlewares WITH Override", async () => {
-		const mw1 = new Middleware((c) => {
-			c.data.ozan = "arslan";
-		});
-		const mw2 = new Middleware((c) => {
-			c.data = {
-				hello: "world",
-			};
-		});
-		mw1.useOnRoute(
-			mw2.useOnRoute(
-				new Route(
-					{ method: "GET", path: path("/two/override") },
-					(c) => c.data,
-				),
-			),
+		const route = new Route(
+			{ method: "GET", path: path("/two/override") },
+			(c) => c.data,
 		);
+		new Middleware({
+			useOn: route,
+			handler: (c) => {
+				c.data.ozan = "arslan";
+			},
+		});
+		new Middleware({
+			useOn: route,
+			handler: (c) => {
+				c.data = { hello: "world" };
+			},
+		});
+
 		const res = await testServer.handle(
 			req("/two/override", { method: "GET" }),
 		);
 		expect(await res.json()).toEqual({ hello: "world" });
+	});
+
+	it("useOnRoute - data array count", async () => {
+		const r = new Route(path("/array"), (c) => {
+			c.data.array?.push("END");
+			return c.data;
+		});
+
+		new Middleware({
+			useOn: r,
+			handler: (c) => {
+				c.data.array = [];
+				c.data.array.push(1);
+			},
+		});
+		new Middleware({
+			useOn: r,
+			handler: (c) => {
+				c.data.array?.push(2);
+			},
+		});
+		new Middleware({
+			useOn: r,
+			handler: (c) => {
+				c.data.array?.push(3);
+			},
+		});
+		new Middleware({
+			useOn: r,
+			handler: (c) => {
+				c.data.array?.push("FOUR");
+			},
+		});
+		new Middleware({
+			useOn: r,
+			handler: (c) => {
+				c.data.array?.push(5);
+			},
+		});
+		new Middleware({
+			useOn: r,
+			handler: (c) => {
+				c.data.array?.push(6);
+			},
+		});
+		new Middleware({
+			useOn: r,
+			handler: (c) => {
+				c.data.array?.push(7);
+			},
+		});
+		const res = await testServer.handle(req("/array"));
+		const data = await res.json();
+		expect(data).toBeDefined();
+		expect(data.array).toBeArray();
+		expect(data.array).toBeArrayOfSize(8);
+		// testing middleware ordering
+		expect(data.array[3]).toBe("FOUR");
+		expect(data.array[data.array.length - 1]).toBe("END");
 	});
 });

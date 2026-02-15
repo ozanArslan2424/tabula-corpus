@@ -97,9 +97,12 @@ class Controller extends ControllerAbstract {
 		Model.combined,
 	);
 
-	// i'm having issues with this one
-	optional = this.route("optional", (c) => c.search, {
+	optional = this.route("/optional", (c) => c.search, {
 		search: type({ "groupId?": "number | undefined" }),
+	});
+
+	missing = this.route("/missing/:param", (c) => c.params.param, {
+		params: type({ param: "string" }),
 	});
 }
 
@@ -281,6 +284,12 @@ describe("adaptive parsing based on library and schema definition", () => {
 		const url = new URL("http://localhost:3000/controller/optional")
 		const res = await testServer.handle(new Request(url))
 		const body = await Parser.getBody<{}>(res)
-		expect(Object.keys(body).length).toBe(0)
+		expect(body).toBeEmptyObject()
+	})
+
+	it("missing required param", async ()=>{
+		const res = await testServer.handle(new Request(`http://localhost:3000/controller/missing`))
+		console.log(await res.text())
+		expect(res.ok).toBe(false)
 	})
 });

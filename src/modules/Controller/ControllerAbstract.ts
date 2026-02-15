@@ -4,12 +4,12 @@ import { Route } from "@/modules/Route/Route";
 import type { ControllerOptions } from "@/modules/Controller/types/ControllerOptions";
 import type { RouteHandler } from "@/modules/Route/types/RouteHandler";
 import type { RouteDefinition } from "@/modules/Route/types/RouteDefinition";
-import type { RouteSchemas } from "@/modules/Parser/types/RouteSchemas";
+import type { RouteModel } from "@/modules/Parser/types/RouteSchemas";
 import { joinPathSegments } from "@/utils/joinPathSegments";
 import { textIsDefined } from "@/utils/textIsDefined";
-import { createHash } from "@/utils/createHash";
-import { getServerInstance } from "@/modules/Server/ServerInstance";
 import { Method } from "@/modules/HttpRequest/enums/Method";
+import type { RouteId } from "@/modules/Route/types/RouteId";
+import { Router } from "@/modules/Router/Router";
 
 /** Extend this class to create your own controllers. */
 
@@ -18,14 +18,10 @@ export abstract class ControllerAbstract<
 > implements ControllerInterface {
 	constructor(private readonly opts?: ControllerOptions<Prefix>) {}
 
-	get id(): string {
-		const input = [this.constructor.name];
-		if (this.prefix) input.push(this.prefix);
-		return createHash(...input);
-	}
+	routeIds: Set<RouteId> = new Set<RouteId>();
 
 	get prefix(): string | undefined {
-		const globalPrefix = getServerInstance().router.globalPrefix;
+		const globalPrefix = Router.globalPrefix;
 		if (textIsDefined(globalPrefix)) {
 			return joinPathSegments(globalPrefix, this.opts?.prefix);
 		}
@@ -41,17 +37,18 @@ export abstract class ControllerAbstract<
 	>(
 		definition: RouteDefinition<Path>,
 		handler: RouteHandler<B, R, S, P>,
-		schemas?: RouteSchemas<B, R, S, P>,
+		schemas?: RouteModel<B, R, S, P>,
 	): RouteInterface<Path, B, R, S, P> {
-		return new Route(
+		const route = new Route(
 			this.resolveRouteDefinition(definition),
 			async (ctx) => {
 				await this.opts?.beforeEach?.(ctx);
 				return handler(ctx);
 			},
 			schemas,
-			this.id,
 		);
+		this.routeIds.add(route.id);
+		return route;
 	}
 
 	protected resolveRouteDefinition<Path extends string = string>(

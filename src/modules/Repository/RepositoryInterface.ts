@@ -1,4 +1,4 @@
-import type { DatabaseClientInterface } from "@/modules/Repository/DatabaseClientInterface";
+import type { DatabaseClientInterface } from "@/types";
 
 export interface RepositoryInterface {
 	readonly db: DatabaseClientInterface;

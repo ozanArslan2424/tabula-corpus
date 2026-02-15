@@ -1,12 +1,12 @@
 import type { RouteInterface } from "@/modules/Route/RouteInterface";
 import type { RouteId } from "@/modules/Route/types/RouteId";
 import type { RouteHandler } from "@/modules/Route/types/RouteHandler";
-import type { RouteSchemas } from "@/modules/Parser/types/RouteSchemas";
+import type { RouteModel } from "@/modules/Parser/types/RouteSchemas";
 import { joinPathSegments } from "@/utils/joinPathSegments";
 import { textIsDefined } from "@/utils/textIsDefined";
 import type { RouteDefinition } from "@/modules/Route/types/RouteDefinition";
-import { getServerInstance } from "@/modules/Server/ServerInstance";
 import { Method } from "@/modules/HttpRequest/enums/Method";
+import { Router } from "@/modules/Router/Router";
 
 export abstract class RouteAbstract<
 	Path extends string = string,
@@ -18,11 +18,11 @@ export abstract class RouteAbstract<
 	constructor(
 		private readonly definition: RouteDefinition<Path>,
 		handler: RouteHandler<R, B, S, P>,
-		readonly schemas?: RouteSchemas<R, B, S, P>,
-		readonly controllerId?: string,
+		model?: RouteModel<R, B, S, P>,
 	) {
 		this.handler = handler;
-		getServerInstance().router.add(this);
+		Router.addRoute(this);
+		Router.addModel(this.id, model);
 	}
 
 	handler: RouteHandler<R, B, S, P>;
@@ -32,7 +32,7 @@ export abstract class RouteAbstract<
 			typeof this.definition === "string"
 				? this.definition
 				: this.definition.path;
-		const globalPrefix = getServerInstance().router.globalPrefix;
+		const globalPrefix = Router.globalPrefix;
 		if (textIsDefined(globalPrefix) && !endpoint.startsWith(globalPrefix)) {
 			return joinPathSegments(globalPrefix, endpoint);
 		}
@@ -55,6 +55,6 @@ export abstract class RouteAbstract<
 	}
 
 	get id(): RouteId {
-		return `[${this.method}]:[${this.path}]`;
+		return `[${this.method.toUpperCase()}]:[${this.path}]`;
 	}
 }

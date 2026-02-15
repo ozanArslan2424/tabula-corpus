@@ -15,7 +15,6 @@ export class ServerUsingNode extends ServerAbstract implements ServerInterface {
 	}
 
 	async exit(): Promise<void> {
-		console.log("Shutting down...");
 		this.app?.close();
 		this.app?.closeAllConnections();
 		this.app?.closeIdleConnections();

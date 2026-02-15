@@ -1,3 +1,4 @@
-import type { EnvInterface } from "@/modules/Config/EnvInterface";
+import type { Env } from "@/types";
+import type { OrString } from "@/utils/OrString";
 
-export type ConfigEnvKey = keyof EnvInterface | (string & {});
+export type ConfigEnvKey = OrString<keyof Env>;

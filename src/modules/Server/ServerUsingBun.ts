@@ -11,7 +11,6 @@ export class ServerUsingBun extends ServerAbstract implements ServerInterface {
 	}
 
 	async exit(): Promise<void> {
-		console.log("Shutting down...");
 		this.app?.stop();
 		process.exit(0);
 	}

@@ -22,38 +22,34 @@ class TestController extends Controller {
 }
 
 describe("Middleware Data", () => {
-	it("use (Controller) - One Middleware", async () => {
-		const mw1 = new Middleware((c) => {
-			c.data = {
-				hello: "world",
-			};
-		});
-		mw1.use(new TestController("/use"));
-		const res = await testServer.handle(req("/use/one", { method: "GET" }));
-		expect(await res.json()).toEqual({ hello: "world" });
-	});
-
 	it("useOnController - One Middleware", async () => {
-		const mw1 = new Middleware((c) => {
-			c.data = {
-				hello: "world",
-			};
+		const controller = new TestController("/one");
+		new Middleware({
+			useOn: controller,
+			handler: (c) => {
+				c.data = {
+					hello: "world",
+				};
+			},
 		});
-		mw1.useOnController(new TestController("/one"));
 		const res = await testServer.handle(req("/one/one", { method: "GET" }));
 		expect(await res.json()).toEqual({ hello: "world" });
 	});
 
 	it("useOnController - Two Middlewares No Override", async () => {
-		const mw1 = new Middleware((c) => {
-			c.data = {
-				hello: "world",
-			};
+		const controller = new TestController("/two");
+		new Middleware({
+			useOn: controller,
+			handler: (c) => {
+				c.data = { hello: "world" };
+			},
 		});
-		const mw2 = new Middleware((c) => {
-			c.data.ozan = "arslan";
+		new Middleware({
+			useOn: controller,
+			handler: (c) => {
+				c.data.ozan = "arslan";
+			},
 		});
-		mw1.useOnController(mw2.useOnController(new TestController("/two")));
 		const res = await testServer.handle(req("/two/two", { method: "GET" }));
 		expect(await res.json()).toEqual({
 			hello: "world",
@@ -62,15 +58,19 @@ describe("Middleware Data", () => {
 	});
 
 	it("useOnController - Two Middlewares WITH Override", async () => {
-		const mw1 = new Middleware((c) => {
-			c.data.ozan = "arslan";
+		const controller = new TestController("/three");
+		new Middleware({
+			useOn: controller,
+			handler: (c) => {
+				c.data.ozan = "arslan";
+			},
 		});
-		const mw2 = new Middleware((c) => {
-			c.data = {
-				hello: "world",
-			};
+		new Middleware({
+			useOn: controller,
+			handler: (c) => {
+				c.data = { hello: "world" };
+			},
 		});
-		mw1.useOnController(mw2.useOnController(new TestController("/three")));
 		const res = await testServer.handle(
 			req("/three/two/override", { method: "GET" }),
 		);

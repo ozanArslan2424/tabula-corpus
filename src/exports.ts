@@ -31,6 +31,6 @@ export { RepositoryAbstract as Repository } from "@/modules/Repository/Repositor
 
 export * from "@/modules/Route/Route";
 
-export * from "@/modules/RouteContext/RouteContext";
+export * from "@/modules/Context/Context";
 
 export * from "@/modules/Server/Server";

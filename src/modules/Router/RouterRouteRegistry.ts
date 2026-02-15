@@ -1,26 +1,44 @@
 import { HttpError } from "@/modules/HttpError/HttpError";
 import type { HttpErrorInterface } from "@/modules/HttpError/HttpErrorInterface";
+import type { HttpRequestInterface } from "@/modules/HttpRequest/HttpRequestInterface";
+import type { RegisteredRouteData } from "@/modules/Router/types/RegisteredRouteData";
 import { Route } from "@/modules/Route/Route";
-import type { RouterInterface } from "@/modules/Router/RouterInterface";
 import type { AnyRoute } from "@/modules/Route/types/AnyRoute";
+import type { RouteId } from "@/modules/Route/types/RouteId";
 import { joinPathSegments } from "@/utils/joinPathSegments";
 import { patternIsEqual } from "@/utils/patternIsEqual";
 import { textIsDefined } from "@/utils/textIsDefined";
 import { textIsEqual } from "@/utils/textIsEqual";
 import { textSplit } from "@/utils/textSplit";
 
-export abstract class RouterAbstract implements RouterInterface {
-	globalPrefix: string = "";
-	private readonly possibles: string[] = [];
-	abstract add(route: AnyRoute): void;
-	abstract listRoutes(): Array<AnyRoute>;
-	abstract update(route: AnyRoute): void;
+export class RouterRouteRegistry {
+	readonly possibles: string[] = [];
+	readonly routes: Record<RouteId, RegisteredRouteData> = {};
 
-	getPossibleCollisions() {
-		return this.possibles;
+	addRoute(r: AnyRoute) {
+		this.checkPossibleCollision(r.path, r.method);
+		this.addPossibleCollision(r.path);
+		this.routes[r.id] = {
+			id: r.id,
+			path: r.path,
+			method: r.method,
+			pattern: r.pattern,
+			handler: r.handler,
+		};
 	}
 
-	protected addPossibleCollision(routePath: string) {
+	findRoute(req: HttpRequestInterface): RegisteredRouteData {
+		const pathname = new URL(req.url).pathname;
+
+		const route = this.findRouteByPathname(pathname, req.method.toUpperCase());
+
+		if (route instanceof Error) {
+			throw route;
+		}
+		return route;
+	}
+
+	addPossibleCollision(routePath: string) {
 		const parts = textSplit("/", routePath);
 		if (!this.possibles.includes(routePath)) {
 			this.possibles.push(routePath);
@@ -37,7 +55,7 @@ export abstract class RouterAbstract implements RouterInterface {
 		}
 	}
 
-	protected checkPossibleCollision(routePath: string, method: string) {
+	checkPossibleCollision(routePath: string, method: string) {
 		for (const possible of this.possibles) {
 			if (possible === routePath) continue;
 
@@ -58,7 +76,7 @@ export abstract class RouterAbstract implements RouterInterface {
 		}
 	}
 
-	protected pathsCollide(path1: string, path2: string): boolean {
+	pathsCollide(path1: string, path2: string): boolean {
 		const parts1 = textSplit("/", path1);
 		const parts2 = textSplit("/", path2);
 
@@ -77,49 +95,39 @@ export abstract class RouterAbstract implements RouterInterface {
 		return true;
 	}
 
-	protected isPatternMatch(route: AnyRoute, pathname: string): boolean {
-		return patternIsEqual(pathname, route.pattern);
-	}
-
-	protected isMethodMatch(route: AnyRoute, method: string): boolean {
-		return textIsEqual(method, route.method, "upper");
-	}
-
-	protected isPathMatch(route: AnyRoute, pathname: string): boolean {
-		return textIsEqual(pathname, route.path, "lower");
-	}
-
-	protected findRouteByPathname(
+	findRouteByPathname(
 		pathname: string,
 		method: string,
-	): AnyRoute | HttpErrorInterface {
-		const route = this.listRoutes().find((route) => {
-			if (route.path.includes(":")) {
-				return this.isPatternMatch(route, pathname);
-			} else {
-				return this.isPathMatch(route, pathname);
-			}
-		});
+	): RegisteredRouteData | HttpErrorInterface {
+		const possibleId: RouteId = `[${method}]:[${pathname}]`;
+		let route: RegisteredRouteData | undefined;
+
+		if (this.routes[possibleId]) {
+			route = this.routes[possibleId];
+		} else {
+			route = Object.values(this.routes).find((r) => {
+				if (r.path.includes(":")) {
+					const patternMatch = patternIsEqual(pathname, r.pattern);
+					if (patternMatch) return patternMatch;
+					const parts = textSplit("/", r.path);
+					if (parts[parts.length - 1]) parts.pop();
+					return textIsEqual(joinPathSegments(...parts), pathname, "lower");
+				} else {
+					return textIsEqual(r.path, pathname, "lower");
+				}
+			});
+		}
 
 		if (route == undefined) {
 			return HttpError.notFound();
 		}
 
-		const methodMatch = this.isMethodMatch(route, method);
+		const methodMatch = textIsEqual(route.method, method, "upper");
 
 		if (!methodMatch) {
 			return HttpError.methodNotAllowed();
 		}
 
 		return route;
-	}
-
-	find(url: string, method: string): AnyRoute {
-		const pathname = new URL(url).pathname;
-		const result = this.findRouteByPathname(pathname, method);
-		if (result instanceof Error) {
-			throw result;
-		}
-		return result;
 	}
 }

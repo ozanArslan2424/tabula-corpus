@@ -9,29 +9,23 @@ import type { HttpResponseBody } from "@/modules/HttpResponse/types/HttpResponse
 import type { RequestHandler } from "@/modules/Server/types/RequestHandler";
 import type { ServeOptions } from "@/modules/Server/types/ServeOptions";
 import type { CorsInterface } from "@/modules/Cors/CorsInterface";
-import type { RouterInterface } from "@/modules/Router/RouterInterface";
-import { Router } from "@/modules/Router/Router";
 import type { ErrorHandler } from "@/modules/Server/types/ErrorHandler";
-import { RouteContext } from "@/modules/RouteContext/RouteContext";
+import { Context } from "@/modules/Context/Context";
 import { Cors } from "@/modules/Cors/Cors";
 import type { CorsOptions } from "@/modules/Cors/types/CorsOptions";
 import type { MaybePromise } from "@/utils/MaybePromise";
+import { Router } from "@/modules/Router/Router";
 
 export abstract class ServerAbstract implements ServerInterface {
 	abstract serve(options: ServeOptions): void;
 	abstract exit(): Promise<void>;
 
-	readonly router: RouterInterface = new Router();
 	protected cors: CorsInterface | undefined;
 	protected handleBeforeListen: (() => MaybePromise<void>) | undefined;
 	protected handleBeforeExit: (() => MaybePromise<void>) | undefined;
 
-	setRouter(cors: RouterInterface): void {
-		this.cors = new Router(cors);
-	}
-
 	setGlobalPrefix(value: string): void {
-		this.router.globalPrefix = value;
+		Router.globalPrefix = value;
 	}
 
 	setCors(cors: CorsOptions): void {
@@ -87,10 +81,9 @@ export abstract class ServerAbstract implements ServerInterface {
 	) {
 		process.on("SIGINT", () => this.exit());
 		process.on("SIGTERM", () => this.exit());
-		const routes = this.router
-			.listRoutes()
-			.map((r) => `[${r.method}]\t:\t${r.path}`)
-			.join("\n");
+		const routes = Object.values(Router.routes).map(
+			(r) => `${r.method}\t:\t${r.path}`,
+		);
 		console.log(`Listening on ${hostname}:${port}\n${routes}`);
 	}
 
@@ -123,9 +116,17 @@ export abstract class ServerAbstract implements ServerInterface {
 	};
 
 	private handleRoute: RequestHandler = async (req) => {
-		const route = this.router.find(req.url, req.method);
-		const ctx = await RouteContext.makeFromRequest(req, route);
+		const route = Router.findRoute(req);
+		const model = Router.findModel(route.id);
+		const ctx = await Context.makeFromRequest(req, route.path, model);
+		const middlewares = Router.findMiddleware(route.id);
+
+		for (const m of middlewares) {
+			await m.handler(ctx);
+		}
+
 		const returnData = await route.handler(ctx);
+
 		if (returnData instanceof HttpResponse) {
 			return returnData;
 		}

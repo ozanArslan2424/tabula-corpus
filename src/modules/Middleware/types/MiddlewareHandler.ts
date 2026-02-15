@@ -1,6 +1,6 @@
-import type { RouteContextInterface } from "@/modules/RouteContext/RouteContextInterface";
+import type { ContextInterface } from "@/modules/Context/ContextInterface";
 import type { MaybePromise } from "@/utils/MaybePromise";
 
 export type MiddlewareHandler = (
-	context: RouteContextInterface,
-) => MaybePromise<RouteContextInterface | void>;
+	context: ContextInterface,
+) => MaybePromise<void>;

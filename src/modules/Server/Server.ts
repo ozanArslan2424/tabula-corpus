@@ -5,7 +5,6 @@ import { ServerUsingBun } from "@/modules/Server/ServerUsingBun";
 import { ServerUsingNode } from "@/modules/Server/ServerUsingNode";
 import type { ServeOptions } from "@/modules/Server/types/ServeOptions";
 import { getRuntime } from "@/modules/Runtime/getRuntime";
-import { setServerInstance } from "@/modules/Server/ServerInstance";
 
 /**
  * Server is the entrypoint to the app.
@@ -20,7 +19,6 @@ export class Server extends ServerAbstract implements ServerInterface {
 	constructor() {
 		super();
 		this.instance = this.getInstance();
-		setServerInstance(this);
 	}
 
 	serve(options: ServeOptions): void {

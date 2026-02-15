@@ -1,49 +1,56 @@
-import { RouterVariant } from "@/modules/Router/enums/RouterVariant";
-import { Config } from "@/modules/Config/Config";
-import { RouterAbstract } from "@/modules/Router/RouterAbstract";
-import type { RouterInterface } from "@/modules/Router/RouterInterface";
-import { RouterUsingArray } from "@/modules/Router/RouterUsingArray";
-import { RouterUsingMap } from "@/modules/Router/RouterUsingMap";
-import { RouterUsingObject } from "@/modules/Router/RouterUsingObject";
+import { RouterRouteRegistry } from "@/modules/Router/RouterRouteRegistry";
+import { RouterMiddlewareRegistry } from "@/modules/Router/RouterMiddlewareRegistry";
+import { RouterModelRegistry } from "@/modules/Router/RouterModelRegistry";
 import type { AnyRoute } from "@/modules/Route/types/AnyRoute";
+import type { HttpRequestInterface } from "@/modules/HttpRequest/HttpRequestInterface";
+import type { RegisteredRouteData } from "@/modules/Router/types/RegisteredRouteData";
+import type { MiddlewareOptions } from "@/modules/Middleware/types/MiddlewareOptions";
+import type { RouterMiddlewareData } from "@/modules/Router/types/RouterMiddlewareData";
+import type { RouteId } from "@/modules/Route/types/RouteId";
+import type { AnyRouteModel } from "@/modules/Parser/types/AnyRouteModel";
 
-export class Router extends RouterAbstract implements RouterInterface {
-	private instance: RouterInterface;
+export class Router {
+	static globalPrefix: string = "";
 
-	private getInstance(): RouterInterface {
-		const variant = Config.get<RouterVariant>("ROUTER_VARIANT_ENV_KEY", {
-			fallback: RouterVariant.array,
-		});
+	static routeRegistry = new RouterRouteRegistry();
 
-		switch (variant) {
-			case RouterVariant.map:
-				return new RouterUsingMap();
-
-			case RouterVariant.object:
-				return new RouterUsingObject();
-
-			case RouterVariant.array:
-			default:
-				return new RouterUsingArray();
-		}
+	static addRoute(r: AnyRoute) {
+		return this.routeRegistry.addRoute(r);
 	}
 
-	constructor() {
-		super();
-		this.instance = this.getInstance();
+	static findRoute(req: HttpRequestInterface): RegisteredRouteData {
+		return this.routeRegistry.findRoute(req);
 	}
 
-	add(route: AnyRoute): void {
-		this.checkPossibleCollision(route.path, route.method);
-		this.addPossibleCollision(route.path);
-		return this.instance.add(route);
+	static get routes() {
+		return this.routeRegistry.routes;
 	}
 
-	listRoutes(): Array<AnyRoute> {
-		return this.instance.listRoutes();
+	static middlewareRegistry = new RouterMiddlewareRegistry();
+
+	static addMiddleware(opts: MiddlewareOptions) {
+		return this.middlewareRegistry.addMiddleware(opts);
 	}
 
-	update(route: AnyRoute): void {
-		return this.instance.update(route);
+	static findMiddleware(routeId: RouteId): Array<RouterMiddlewareData> {
+		return this.middlewareRegistry.findMiddleware(routeId);
+	}
+
+	static get middlewares() {
+		return this.middlewareRegistry.middlewares;
+	}
+
+	static modelRegistry = new RouterModelRegistry();
+
+	static addModel(routeId: RouteId, model?: AnyRouteModel | undefined) {
+		return this.modelRegistry.addModel(routeId, model);
+	}
+
+	static findModel(routeId: RouteId): AnyRouteModel | undefined {
+		return this.modelRegistry.findModel(routeId);
+	}
+
+	static get models() {
+		return this.modelRegistry.models;
 	}
 }

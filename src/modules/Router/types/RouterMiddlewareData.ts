@@ -1,5 +1,6 @@
 import type { MiddlewareHandler } from "@/modules/Middleware/types/MiddlewareHandler";
 
-export interface MiddlewareInterface {
-	readonly handler: MiddlewareHandler;
-}
+export type RouterMiddlewareData = {
+	handler: MiddlewareHandler;
+	order: number;
+};

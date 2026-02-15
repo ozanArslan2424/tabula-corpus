@@ -2,8 +2,9 @@ import type { HttpHeadersInterface } from "@/modules/HttpHeaders/HttpHeadersInte
 import type { HttpRequestInterface } from "@/modules/HttpRequest/HttpRequestInterface";
 import type { CookiesInterface } from "@/modules/Cookies/CookiesInterface";
 import type { HttpResponseInterface } from "@/modules/HttpResponse/HttpResponseInterface";
+import type { ContextDataInterface } from "@/types";
 
-export interface RouteContextInterface<
+export interface ContextInterface<
 	R = unknown,
 	B = unknown,
 	S = unknown,
@@ -17,5 +18,5 @@ export interface RouteContextInterface<
 	readonly search: S;
 	readonly params: P;
 	res: HttpResponseInterface<R>;
-	data: Record<string, unknown>;
+	data: ContextDataInterface;
 }

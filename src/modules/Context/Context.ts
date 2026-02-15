@@ -1,9 +1,9 @@
 import { HttpRequest } from "@/modules/HttpRequest/HttpRequest";
 import type { HttpRequestInterface } from "@/modules/HttpRequest/HttpRequestInterface";
 import { Parser } from "@/modules/Parser/Parser";
-import { RouteContextAbstract } from "@/modules/RouteContext/RouteContextAbstract";
-import type { RouteContextInterface } from "@/modules/RouteContext/RouteContextInterface";
-import type { RouteInterface } from "@/modules/Route/RouteInterface";
+import { ContextAbstract } from "@/modules/Context/ContextAbstract";
+import type { ContextInterface } from "@/modules/Context/ContextInterface";
+import type { RouteModel } from "@/modules/Parser/types/RouteSchemas";
 
 /**
  * The context object used in Route "callback" parameter.
@@ -28,9 +28,9 @@ import type { RouteInterface } from "@/modules/Route/RouteInterface";
  * cookies = To set the Response {@link Cookies}
  * */
 
-export class RouteContext<R = unknown, B = unknown, S = unknown, P = unknown>
-	extends RouteContextAbstract<R, B, S, P>
-	implements RouteContextInterface<R, B, S, P>
+export class Context<R = unknown, B = unknown, S = unknown, P = unknown>
+	extends ContextAbstract<R, B, S, P>
+	implements ContextInterface<R, B, S, P>
 {
 	static async makeFromRequest<
 		Path extends string = string,
@@ -40,23 +40,18 @@ export class RouteContext<R = unknown, B = unknown, S = unknown, P = unknown>
 		P = unknown,
 	>(
 		request: HttpRequestInterface,
-		route: RouteInterface<Path, R, B, S, P>,
-	): Promise<RouteContextInterface<R, B, S, P>> {
+		path: Path,
+		model?: RouteModel<R, B, S, P>,
+	): Promise<ContextInterface<R, B, S, P>> {
 		const req = new HttpRequest(request);
-		console.log(req.url);
 		const url = new URL(req.url);
-		console.log(url.toString());
 		const headers = req.headers;
 		const cookies = req.cookies;
 
-		const body = await Parser.getBody(req, route.schemas?.body);
-		const search = await Parser.getSearch(url, route.schemas?.search);
-		const params = await Parser.getParams(
-			route.path,
-			url,
-			route.schemas?.params,
-		);
+		const body = await Parser.getBody(req, model?.body);
+		const search = await Parser.getSearch(url, model?.search);
+		const params = await Parser.getParams(path, url, model?.params);
 
-		return new RouteContext(req, url, headers, cookies, body, search, params);
+		return new Context(req, url, headers, cookies, body, search, params);
 	}
 }
