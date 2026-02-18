@@ -6,8 +6,8 @@ import { Parser } from "@/modules/Parser/Parser";
 import { Route } from "@/modules/Route/Route";
 import { type } from "arktype";
 import { describe, expect, it } from "bun:test";
-import { testServer } from "test/utils/testServer";
 import z from "zod";
+import { testServer } from "../utils/testServer";
 
 const successData = { hello: 1 };
 const failData = { unknown: "object" };

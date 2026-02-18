@@ -5,7 +5,7 @@ import { pathMaker } from "../utils/pathMaker";
 import { Status } from "@/modules/HttpResponse/enums/Status";
 import { CommonHeaders } from "@/modules/HttpHeaders/enums/CommonHeaders";
 import { Route } from "@/modules/Route/Route";
-import { testServer } from "test/utils/testServer";
+import { testServer } from "../utils/testServer";
 
 const prefix = "/request-body/arktype";
 const path = pathMaker(prefix);

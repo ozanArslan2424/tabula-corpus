@@ -1,9 +1,9 @@
 import { Middleware } from "@/modules/Middleware/Middleware";
 import { describe, it, expect } from "bun:test";
 import { Controller } from "@/index";
-import { reqMaker } from "test/utils/reqMaker";
-import { pathMaker } from "test/utils/pathMaker";
-import { testServer } from "test/utils/testServer";
+import { reqMaker } from "../utils/reqMaker";
+import { pathMaker } from "../utils/pathMaker";
+import { testServer } from "../utils/testServer";
 
 const globalPrefix = "/middleware/use-on-controller";
 const path = pathMaker(globalPrefix);

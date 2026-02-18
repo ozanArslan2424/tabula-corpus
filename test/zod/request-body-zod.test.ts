@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { reqMaker } from "../utils/reqMaker";
 import { pathMaker } from "../utils/pathMaker";
 import z from "zod";
-import { testServer } from "test/utils/testServer";
+import { testServer } from "../utils/testServer";
 import { Status } from "@/modules/HttpResponse/enums/Status";
 import { CommonHeaders } from "@/modules/HttpHeaders/enums/CommonHeaders";
 import { Route } from "@/modules/Route/Route";

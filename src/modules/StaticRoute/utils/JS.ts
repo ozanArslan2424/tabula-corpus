@@ -1,6 +1,7 @@
 import { Config } from "@/modules/Config/Config";
 import { FileWalker } from "@/modules/FileWalker/FileWalker";
 import ts from "typescript";
+import esbuild from "esbuild";
 
 export class JS {
 	static async transpile(fileName: string, content: string): Promise<string> {
@@ -9,7 +10,7 @@ export class JS {
 		const defaultConfigPath = Config.resolvePath(Config.cwd(), "tsconfig.json");
 		const webConfigExists = await FileWalker.exists(webConfigPath);
 		const configPath = webConfigExists ? webConfigPath : defaultConfigPath;
-		const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
+		const configFile = ts.readConfigFile(configPath, (p) => ts.sys.readFile(p));
 		const parsedConfig = ts.parseJsonConfigFileContent(
 			configFile.config,
 			ts.sys,
@@ -20,5 +21,13 @@ export class JS {
 			fileName,
 		});
 		return result.outputText;
+	}
+
+	static async minify(content: string): Promise<string> {
+		const result = await esbuild.transform(content, {
+			minify: true,
+			loader: "js",
+		});
+		return result.code;
 	}
 }

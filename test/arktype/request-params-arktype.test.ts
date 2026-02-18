@@ -4,7 +4,7 @@ import { type } from "arktype";
 import { pathMaker } from "../utils/pathMaker";
 import { Status } from "@/modules/HttpResponse/enums/Status";
 import { Route } from "@/modules/Route/Route";
-import { testServer } from "test/utils/testServer";
+import { testServer } from "../utils/testServer";
 
 const prefix = "/request-params/arktype";
 const path = pathMaker(prefix);

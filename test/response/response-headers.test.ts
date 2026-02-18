@@ -4,7 +4,7 @@ import { pathMaker } from "../utils/pathMaker";
 import { CommonHeaders } from "@/modules/HttpHeaders/enums/CommonHeaders";
 import { Status } from "@/modules/HttpResponse/enums/Status";
 import { Route } from "@/modules/Route/Route";
-import { testServer } from "test/utils/testServer";
+import { testServer } from "../utils/testServer";
 
 const prefix = "/response-headers";
 const path = pathMaker(prefix);

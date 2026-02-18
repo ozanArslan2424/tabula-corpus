@@ -69,7 +69,7 @@ export class StaticRoute<Path extends string = string>
 	}
 
 	private async handleJs(props: StaticScriptProps) {
-		let content = await FileWalker.read(props.filePath);
+		const content = await FileWalker.read(props.filePath);
 
 		if (!content) {
 			// No need to throw for missing javascript
@@ -77,12 +77,22 @@ export class StaticRoute<Path extends string = string>
 			return this.toResponse("");
 		}
 
-		if (props.variant === "ts") {
-			const fileName = props.filePath.split("/").pop() ?? "unknown.ts";
-			content = await JS.transpile(fileName, content);
+		if (props.variant === "js") {
+			const minified = await JS.minify(content);
+			return this.toResponse(minified);
 		}
 
-		return this.toResponse(content);
+		if (props.variant === "ts") {
+			const fileName = props.filePath.split("/").pop() ?? "unknown.ts";
+			const transpiled = await JS.transpile(fileName, content);
+			const minified = await JS.minify(transpiled);
+			return this.toResponse(minified);
+		}
+
+		throw new Error(
+			"Unavailable variant for JS route:",
+			(props as any).variant,
+		);
 	}
 
 	private async handleHtml(props: StaticHtmlProps) {

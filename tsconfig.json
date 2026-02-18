@@ -23,7 +23,7 @@
 		"noUnusedParameters": false,
 		"noPropertyAccessFromIndexSignature": false,
 		"esModuleInterop": true,
-		"baseUrl": ".",
+		// "baseUrl": ".",
 		"paths": {
 			"@/*": [
 				"./src/*"
