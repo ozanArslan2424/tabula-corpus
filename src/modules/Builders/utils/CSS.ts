@@ -2,8 +2,17 @@ import type { CssProperties } from "@/modules/StaticRoute/types/CssProperties";
 import type { CssRule } from "@/modules/StaticRoute/types/CssRule";
 import type { CssValue } from "@/modules/StaticRoute/types/CssValue";
 import type { NestedCssProperties } from "@/modules/StaticRoute/types/NestedCssProperties";
+import * as esbuild from "esbuild";
 
 export class CSS {
+	static async minify(content: string): Promise<string> {
+		const result = await esbuild.transform(content, {
+			loader: "css",
+			minify: true,
+		});
+		return result.code;
+	}
+
 	static build(rules: CssRule[]): string {
 		return rules.map((rule) => this.ruleToString(rule)).join("\n\n");
 	}

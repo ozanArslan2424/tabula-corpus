@@ -6,18 +6,12 @@ import { HttpResponse } from "@/modules/HttpResponse/HttpResponse";
 import { RouteVariant } from "@/modules/Route/enums/RouteVariant";
 import type { RouteId } from "@/modules/Route/types/RouteId";
 import { Router } from "@/modules/Router/Router";
-import { CSS } from "@/modules/StaticRoute/utils/CSS";
-import { HTML } from "@/modules/StaticRoute/utils/HTML";
-import { JS } from "@/modules/StaticRoute/utils/JS";
+import { CSS } from "@/modules/Builders/utils/CSS";
+import { JS } from "@/modules/Builders/utils/JS";
 import { StaticRouteAbstract } from "@/modules/StaticRoute/StaticRouteAbstract";
 import type { StaticRouteInterface } from "@/modules/StaticRoute/StaticRouteInterface";
 import type { StaticRouteHandler } from "@/modules/StaticRoute/types/StaticRouteHandler";
-import type {
-	StaticHtmlProps,
-	StaticRouteProps,
-	StaticScriptProps,
-	StaticStyleProps,
-} from "@/modules/StaticRoute/types/StaticRouteProps";
+import type { OrString } from "@/utils/OrString";
 
 export class StaticRoute<Path extends string = string>
 	extends StaticRouteAbstract<Path>
@@ -25,7 +19,8 @@ export class StaticRoute<Path extends string = string>
 {
 	constructor(
 		path: Path,
-		private readonly opts: StaticRouteProps,
+		private filePath: string,
+		extension?: OrString<"html" | "css" | "js" | "ts">,
 	) {
 		super();
 		this.variant = RouteVariant.static;
@@ -33,8 +28,12 @@ export class StaticRoute<Path extends string = string>
 		this.endpoint = this.resolveEndpoint(path, this.variant);
 		this.pattern = this.resolvePattern(this.endpoint);
 		this.id = this.resolveId(this.method, this.endpoint);
+
+		this.extension = extension || this.filePath.split(".").pop() || "txt";
 		Router.addRoute(this);
 	}
+
+	extension: string;
 
 	id: RouteId;
 	variant: RouteVariant;
@@ -42,89 +41,67 @@ export class StaticRoute<Path extends string = string>
 	endpoint: Path;
 	pattern: RegExp;
 	handler: StaticRouteHandler = async () => {
-		switch (this.opts.extension) {
-			case StaticExtension.html:
-				return await this.handleHtml(this.opts.props);
-			case StaticExtension.js:
-				return await this.handleJs(this.opts.props);
-			case StaticExtension.css:
-				return await this.handleCss(this.opts.props);
+		switch (this.extension) {
+			case "html":
+				return await this.handleHtml();
+			case "css":
+				return await this.handleCss();
+			case "js":
+				return await this.handleJs();
+			case "ts":
+				return await this.handleTs();
 			default:
-				return await this.handleFile(this.opts);
+				return await this.handleFile();
 		}
 	};
 
-	private async handleCss(props: StaticStyleProps) {
-		if (props.variant === "raw") {
-			return this.toResponse(CSS.build(props.rules));
-		}
-
-		if (props.variant === "file") {
-			const content = await FileWalker.read(props.filePath);
-			if (!content) {
-				// No need to throw for missing styles
-				console.error("File not found at:", props.filePath);
-				return this.toResponse("");
-			}
-			return this.toResponse(content);
-		}
-
-		throw new Error(
-			"Unavailable variant for CSS route:",
-			(props as any).variant,
-		);
+	private async handleHtml() {
+		const content = await this.getContent();
+		return this.toResponse(content);
 	}
 
-	private async handleJs(props: StaticScriptProps) {
-		const content = await FileWalker.read(props.filePath);
+	private async handleCss() {
+		const content = await this.getContent();
+		const minified = await CSS.minify(content);
+		return this.toResponse(minified);
+	}
 
+	private async handleJs() {
+		const content = await this.getContent();
+		const minified = await JS.minify(content);
+		return this.toResponse(minified);
+	}
+
+	private async handleTs() {
+		const content = await this.getContent();
+		const fileName = this.getFileName();
+		const transpiled = await JS.transpile(fileName, content);
+		const minified = await JS.minify(transpiled);
+		return this.toResponse(minified);
+	}
+
+	// TODO: Compress images and other binary files
+	private async handleFile() {
+		const content = await this.getContent();
+		return this.toResponse(content);
+	}
+
+	private getFileName(): string {
+		return this.filePath.split("/").pop() ?? "unknown.ts";
+	}
+
+	private async getContent(): Promise<string> {
+		const content = await FileWalker.read(this.filePath);
 		if (!content) {
-			// No need to throw for missing javascript
-			console.error("File not found at:", props.filePath);
-			return this.toResponse("");
+			console.error("File not found at:", this.filePath);
+			throw HttpError.notFound();
 		}
-
-		if (props.variant === "js") {
-			const minified = await JS.minify(content);
-			return this.toResponse(minified);
-		}
-
-		if (props.variant === "ts") {
-			const fileName = props.filePath.split("/").pop() ?? "unknown.ts";
-			const transpiled = await JS.transpile(fileName, content);
-			const minified = await JS.minify(transpiled);
-			return this.toResponse(minified);
-		}
-
-		throw new Error(
-			"Unavailable variant for JS route:",
-			(props as any).variant,
-		);
-	}
-
-	private async handleHtml(props: StaticHtmlProps) {
-		if (props.variant === "raw") {
-			return this.toResponse(HTML.build(props.skeleton));
-		}
-
-		if (props.variant === "file") {
-			const content = await FileWalker.read(props.filePath);
-			if (!content) {
-				// No HTML file means 404
-				console.error("File not found at:", props.filePath);
-				throw HttpError.notFound();
-			}
-			return this.toResponse(content);
-		}
-
-		throw new Error(
-			"Unavailable variant for HTML route:",
-			(props as any).variant,
-		);
+		return content;
 	}
 
 	private toResponse(content: string) {
-		const contentType = this.getContentType(this.opts.extension);
+		const contentType =
+			this.mimeTypes[this.extension] || "application/octet-stream";
 		const contentLength = content.length.toString();
 		return new HttpResponse(content, {
 			status: Status.OK,
@@ -159,8 +136,4 @@ export class StaticRoute<Path extends string = string>
 		woff2: "font/woff2",
 		ttf: "font/ttf",
 	};
-
-	private getContentType(extension: string): string {
-		return this.mimeTypes[extension] || "application/octet-stream";
-	}
 }

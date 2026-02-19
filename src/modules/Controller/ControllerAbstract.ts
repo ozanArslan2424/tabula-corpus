@@ -8,9 +8,9 @@ import type { RouteModel } from "@/modules/Parser/types/RouteSchemas";
 import { joinPathSegments } from "@/utils/joinPathSegments";
 import { Method } from "@/modules/HttpRequest/enums/Method";
 import type { RouteId } from "@/modules/Route/types/RouteId";
-import type { StaticRouteProps } from "@/modules/StaticRoute/types/StaticRouteProps";
 import { StaticRoute } from "@/modules/StaticRoute/StaticRoute";
 import type { StaticRouteInterface } from "@/modules/StaticRoute/StaticRouteInterface";
+import type { OrString } from "@/utils/OrString";
 
 /** Extend this class to create your own controllers. */
 
@@ -60,11 +60,13 @@ export abstract class ControllerAbstract<
 
 	staticRoute<Path extends string = string>(
 		path: Path,
-		opts: StaticRouteProps,
+		filePath: string,
+		extension?: OrString<"html" | "css" | "js" | "ts">,
 	): StaticRouteInterface<Path> {
 		const route = new StaticRoute(
 			joinPathSegments<Path>(this.prefix, path),
-			opts,
+			filePath,
+			extension,
 		);
 		this.routeIds.add(route.id);
 		return route;
