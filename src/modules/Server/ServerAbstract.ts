@@ -117,19 +117,21 @@ export abstract class ServerAbstract implements ServerInterface {
 			status = err.status;
 		}
 
-		return new HttpResponse(body, { status });
+		return new HttpResponse({ error: body }, { status });
 	};
 
 	private handleNotFound: RequestHandler = async (req) => {
-		return new HttpResponse(`${req.method} on ${req.url} does not exist.`, {
-			status: Status.NOT_FOUND,
-		});
+		return new HttpResponse(
+			{ error: `${req.method} on ${req.url} does not exist.` },
+			{ status: Status.NOT_FOUND },
+		);
 	};
 
 	private handleMethodNotAllowed: RequestHandler = async (req) => {
-		return new HttpResponse(`${req.method} does not exist.`, {
-			status: Status.METHOD_NOT_ALLOWED,
-		});
+		return new HttpResponse(
+			{ error: `${req.method} does not exist.` },
+			{ status: Status.METHOD_NOT_ALLOWED },
+		);
 	};
 
 	private handlePreflight = async () => {
