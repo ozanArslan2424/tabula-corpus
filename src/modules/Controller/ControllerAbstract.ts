@@ -11,25 +11,21 @@ import type { RouteId } from "@/modules/Route/types/RouteId";
 import { StaticRoute } from "@/modules/StaticRoute/StaticRoute";
 import type { StaticRouteInterface } from "@/modules/StaticRoute/StaticRouteInterface";
 import type { OrString } from "@/utils/OrString";
+import type { MiddlewareHandler } from "@/modules/Middleware/types/MiddlewareHandler";
 
 /** Extend this class to create your own controllers. */
 
-export abstract class ControllerAbstract<
-	Prefix extends string = string,
-> implements ControllerInterface {
-	constructor(private readonly opts?: ControllerOptions<Prefix>) {}
-
-	routeIds: Set<RouteId> = new Set<RouteId>();
-
-	get prefix(): string | undefined {
-		// const globalPrefix = Router.globalPrefix;
-		// if (textIsDefined(globalPrefix)) {
-		// 	return joinPathSegments(globalPrefix, this.opts?.prefix);
-		// }
-		return this.opts?.prefix;
+export abstract class ControllerAbstract implements ControllerInterface {
+	constructor(opts?: ControllerOptions) {
+		this.prefix = opts?.prefix;
+		this.beforeEach = opts?.beforeEach;
 	}
 
-	route<
+	routeIds: Set<RouteId> = new Set<RouteId>();
+	protected prefix?: string;
+	protected beforeEach?: MiddlewareHandler;
+
+	protected route<
 		Path extends string = string,
 		B = unknown,
 		R = unknown,
@@ -49,7 +45,7 @@ export abstract class ControllerAbstract<
 				),
 			},
 			async (ctx) => {
-				await this.opts?.beforeEach?.(ctx);
+				await this.beforeEach?.(ctx);
 				return handler(ctx);
 			},
 			schemas,
@@ -58,7 +54,7 @@ export abstract class ControllerAbstract<
 		return route;
 	}
 
-	staticRoute<Path extends string = string>(
+	protected staticRoute<Path extends string = string>(
 		path: Path,
 		filePath: string,
 		extension?: OrString<"html" | "css" | "js" | "ts">,
