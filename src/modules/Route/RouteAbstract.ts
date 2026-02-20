@@ -2,10 +2,10 @@ import type { RouteInterface } from "@/modules/Route/RouteInterface";
 import type { RouteId } from "@/modules/Route/types/RouteId";
 import type { RouteDefinition } from "@/modules/Route/types/RouteDefinition";
 import { Method } from "@/modules/HttpRequest/enums/Method";
-import { Router } from "@/modules/Router/Router";
 import { joinPathSegments } from "@/utils/joinPathSegments";
 import { RouteVariant } from "@/modules/Route/enums/RouteVariant";
 import type { RouteHandler } from "@/modules/Route/types/RouteHandler";
+import { getRouterInstance } from "@/modules/Router/RouterInstance";
 
 export abstract class RouteAbstract<
 	Path extends string = string,
@@ -27,9 +27,8 @@ export abstract class RouteAbstract<
 	): Path {
 		const endpoint =
 			typeof definition === "string" ? definition : definition.path;
-		const globalPrefix = Router.globalPrefix;
 		if (variant === RouteVariant.dynamic) {
-			return joinPathSegments(globalPrefix, endpoint);
+			return joinPathSegments(getRouterInstance().globalPrefix, endpoint);
 		}
 		return endpoint;
 	}

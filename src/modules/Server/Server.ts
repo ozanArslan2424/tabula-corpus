@@ -41,7 +41,7 @@ export class Server extends ServerAbstract implements ServerInterface {
 			case RuntimeOptions.node:
 				return new ServerUsingNode();
 			default:
-				throw new Error(`Unsupported runtime: ${runtime}`);
+				throw new Error(`Unsupported runtime: ${runtime as string}`);
 		}
 	}
 }

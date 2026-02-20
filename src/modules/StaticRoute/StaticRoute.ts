@@ -5,13 +5,13 @@ import { Status } from "@/modules/HttpResponse/enums/Status";
 import { HttpResponse } from "@/modules/HttpResponse/HttpResponse";
 import { RouteVariant } from "@/modules/Route/enums/RouteVariant";
 import type { RouteId } from "@/modules/Route/types/RouteId";
-import { Router } from "@/modules/Router/Router";
 import { CSS } from "@/modules/Builders/utils/CSS";
 import { JS } from "@/modules/Builders/utils/JS";
 import { StaticRouteAbstract } from "@/modules/StaticRoute/StaticRouteAbstract";
 import type { StaticRouteInterface } from "@/modules/StaticRoute/StaticRouteInterface";
 import type { StaticRouteHandler } from "@/modules/StaticRoute/types/StaticRouteHandler";
 import type { OrString } from "@/utils/OrString";
+import { getRouterInstance } from "@/modules/Router/RouterInstance";
 
 export class StaticRoute<Path extends string = string>
 	extends StaticRouteAbstract<Path>
@@ -30,7 +30,7 @@ export class StaticRoute<Path extends string = string>
 		this.id = this.resolveId(this.method, this.endpoint);
 
 		this.extension = extension || this.filePath.split(".").pop() || "txt";
-		Router.addRoute(this);
+		getRouterInstance().addRoute(this);
 	}
 
 	extension: string;

@@ -43,7 +43,7 @@ export class Parser {
 					.map((segment) =>
 						isObjectWith<{ key: string }>(segment, "key")
 							? String(segment.key)
-							: String(segment),
+							: String(segment as string),
 					)
 					.join(".");
 
@@ -63,11 +63,7 @@ export class Parser {
 	): Promise<S> {
 		const data: UnknownObject = {};
 
-		if (url.searchParams.size === 0) {
-			return data as S;
-		}
-
-		for (const [key, value] of url.searchParams) {
+		for (const [key, value] of url.searchParams ?? {}) {
 			data[key] = getProcessedValue(value);
 		}
 

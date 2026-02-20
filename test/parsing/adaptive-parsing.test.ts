@@ -8,6 +8,9 @@ import { type } from "arktype";
 import { describe, expect, it } from "bun:test";
 import z from "zod";
 import { testServer } from "../utils/testServer";
+import { joinPathSegments } from "@/utils/joinPathSegments";
+import { getRouterInstance } from "@/modules/Router/RouterInstance";
+import { TEST_URL } from "../utils/TEST_URL";
 
 const successData = { hello: 1 };
 const failData = { unknown: "object" };
@@ -110,6 +113,12 @@ class Controller extends ControllerAbstract {
 
 new Controller();
 
+const path = (...segments: (string | number)[]) =>
+	`${TEST_URL}${joinPathSegments(
+		getRouterInstance().globalPrefix,
+		...segments,
+	)}`;
+
 // prettier-ignore
 describe("adaptive parsing based on library and schema definition", () => {
 	it("arkBasic - variant", () => { expect(Parser.getParserVendor(arkBasic)).toBe("arktype"); });
@@ -165,132 +174,133 @@ describe("adaptive parsing based on library and schema definition", () => {
 		expect(await Parser.parse(successRouteData.search, Model.zodRouteReferenced.search)).toEqual(successRouteData.search);
 		expect(await Parser.parse(successRouteData.body, Model.zodRouteReferenced.body)).toEqual(successRouteData.body);
 	});
-	it("arkRoute - Real Request - success", async ()=>{
-		new Route({ method: "POST", path: "/success/arkRoute/hello/:hello" }, (c) => ({ body:c.body, params: c.params, search: c.search }), Model.arkRoute)
-		const url = new URL(`http://localhost:3000/success/arkRoute/hello/${successRouteData.params.hello}`)
+	it("arkRoute - Real Request - success", async () => {
+		new Route({ method: "POST", path: "/success/arkRoute/hello/:hello" }, (c) => ({ body: c.body, params: c.params, search: c.search }), Model.arkRoute)
+		const url = new URL(path("success", "arkRoute", "hello", successRouteData.params.hello))
 		url.searchParams.set("hello", successRouteData.search.hello.toString())
-		const res = await testServer.handle(new Request(url, { body: JSON.stringify(successRouteData.body), method:"POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
+		const res = await testServer.handle(new Request(url, { body: JSON.stringify(successRouteData.body), method: "POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
 		expect(await Parser.getBody<ST>(res)).toEqual(successRouteData)
 	})
-	it("zodRoute - Real Request - success", async ()=>{
-		new Route({ method: "POST", path: "/success/zodRoute/hello/:hello" }, (c) => ({ body:c.body, params: c.params, search: c.search }), Model.zodRoute)
-		const url = new URL(`http://localhost:3000/success/zodRoute/hello/${successRouteData.params.hello}`)
+	it("zodRoute - Real Request - success", async () => {
+		new Route({ method: "POST", path: "/success/zodRoute/hello/:hello" }, (c) => ({ body: c.body, params: c.params, search: c.search }), Model.zodRoute)
+		const url = new URL(path("success", "zodRoute", "hello", successRouteData.params.hello))
 		url.searchParams.set("hello", successRouteData.search.hello.toString())
-		const res = await testServer.handle(new Request(url, { body: JSON.stringify(successRouteData.body), method:"POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
+		const res = await testServer.handle(new Request(url, { body: JSON.stringify(successRouteData.body), method: "POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
 		expect(await Parser.getBody<ST>(res)).toEqual(successRouteData)
 	})
-	it("arkRouteReferenced - Real Request - success", async ()=>{
-		new Route({ method: "POST", path: "/success/arkRouteReferenced/hello/:hello" }, (c) => ({ body:c.body, params: c.params, search: c.search }), Model.arkRouteReferenced)
-		const url = new URL(`http://localhost:3000/success/arkRouteReferenced/hello/${successRouteData.params.hello}`)
+	it("arkRouteReferenced - Real Request - success", async () => {
+		new Route({ method: "POST", path: "/success/arkRouteReferenced/hello/:hello" }, (c) => ({ body: c.body, params: c.params, search: c.search }), Model.arkRouteReferenced)
+		const url = new URL(path("success", "arkRouteReferenced", "hello", successRouteData.params.hello))
 		url.searchParams.set("hello", successRouteData.search.hello.toString())
-		const res = await testServer.handle(new Request(url, { body: JSON.stringify(successRouteData.body), method:"POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
+		const res = await testServer.handle(new Request(url, { body: JSON.stringify(successRouteData.body), method: "POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
 		expect(await Parser.getBody<ST>(res)).toEqual(successRouteData)
 	})
-	it("zodRouteReferenced - Real Request - success", async ()=>{
-		new Route({ method: "POST", path: "/success/zodRouteReferenced/hello/:hello" }, (c) => ({ body:c.body, params: c.params, search: c.search }), Model.zodRouteReferenced)
-		const url = new URL(`http://localhost:3000/success/zodRouteReferenced/hello/${successRouteData.params.hello}`)
+	it("zodRouteReferenced - Real Request - success", async () => {
+		new Route({ method: "POST", path: "/success/zodRouteReferenced/hello/:hello" }, (c) => ({ body: c.body, params: c.params, search: c.search }), Model.zodRouteReferenced)
+		const url = new URL(path("success", "zodRouteReferenced", "hello", successRouteData.params.hello))
 		url.searchParams.set("hello", successRouteData.search.hello.toString())
-		const res = await testServer.handle(new Request(url, { body: JSON.stringify(successRouteData.body), method:"POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
+		const res = await testServer.handle(new Request(url, { body: JSON.stringify(successRouteData.body), method: "POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
 		expect(await Parser.getBody<ST>(res)).toEqual(successRouteData)
 	})
-	it("combined - Real Request - success", async ()=>{
-		new Route({ method: "POST", path: "/success/combined/hello/:hello" }, (c) => ({ body:c.body, params: c.params, search: c.search }), Model.combined)
-		const url = new URL(`http://localhost:3000/success/combined/hello/${successRouteData.params.hello}`)
+	it("combined - Real Request - success", async () => {
+		new Route({ method: "POST", path: "/success/combined/hello/:hello" }, (c) => ({ body: c.body, params: c.params, search: c.search }), Model.combined)
+		const url = new URL(path("success", "combined", "hello", successRouteData.params.hello))
 		url.searchParams.set("hello", successRouteData.search.hello.toString())
-		const res = await testServer.handle(new Request(url, { body: JSON.stringify(successRouteData.body), method:"POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
+		const res = await testServer.handle(new Request(url, { body: JSON.stringify(successRouteData.body), method: "POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
 		expect(await Parser.getBody<ST>(res)).toEqual(successRouteData)
 	})
-	it("Controller - Real Request - success", async ()=>{
-		const url = new URL(`http://localhost:3000/controller/combined/${successRouteData.params.hello}`)
+	it("Controller - Real Request - success", async () => {
+		const url = new URL(path("controller", "combined", successRouteData.params.hello))
 		url.searchParams.set("hello", successRouteData.search.hello.toString())
-		const res = await testServer.handle(new Request(url, { body: JSON.stringify(successRouteData.body), method:"POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
+		const res = await testServer.handle(new Request(url, { body: JSON.stringify(successRouteData.body), method: "POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
 		expect(await Parser.getBody<ST>(res)).toEqual(successRouteData)
 	})
 
 
-	it("arkBasic - fail", () => { expect(async() => await Parser.parse(failData, arkBasic)).toThrow(HttpError); });
-	it("zodBasic - fail", () => { expect(async() => await Parser.parse(failData, zodBasic)).toThrow(HttpError); });
-	it("arkModelBasic - fail", () => { expect(async() => await Parser.parse(failData, Model.arkModelBasic)).toThrow(HttpError); });
-	it("zodModelBasic - fail", () => { expect(async() => await Parser.parse(failData, Model.zodModelBasic)).toThrow(HttpError); });
-	it("arkReferenced - fail", () => { expect(async() => await Parser.parse(failData, Model.arkReferenced)).toThrow(HttpError); });
-	it("zodReferenced - fail", () => { expect(async() => await Parser.parse(failData, Model.zodReferenced)).toThrow(HttpError); });
+	it("arkBasic - fail", () => { expect(async () => await Parser.parse(failData, arkBasic)).toThrow(HttpError); });
+	it("zodBasic - fail", () => { expect(async () => await Parser.parse(failData, zodBasic)).toThrow(HttpError); });
+	it("arkModelBasic - fail", () => { expect(async () => await Parser.parse(failData, Model.arkModelBasic)).toThrow(HttpError); });
+	it("zodModelBasic - fail", () => { expect(async () => await Parser.parse(failData, Model.zodModelBasic)).toThrow(HttpError); });
+	it("arkReferenced - fail", () => { expect(async () => await Parser.parse(failData, Model.arkReferenced)).toThrow(HttpError); });
+	it("zodReferenced - fail", () => { expect(async () => await Parser.parse(failData, Model.zodReferenced)).toThrow(HttpError); });
 	it("arkRoute - fail", () => {
-		expect(async()=>await Parser.parse(failRouteData.params, Model.arkRoute.params)).toThrow(HttpError);
-		expect(async()=>await Parser.parse(failRouteData.search, Model.arkRoute.search)).toThrow(HttpError);
-		expect(async()=>await Parser.parse(failRouteData.body, Model.arkRoute.body)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.params, Model.arkRoute.params)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.search, Model.arkRoute.search)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.body, Model.arkRoute.body)).toThrow(HttpError);
 	});
 	it("zodRoute - fail", () => {
-		expect(async()=>await Parser.parse(failRouteData.params, Model.zodRoute.params)).toThrow(HttpError);
-		expect(async()=>await Parser.parse(failRouteData.search, Model.zodRoute.search)).toThrow(HttpError);
-		expect(async()=>await Parser.parse(failRouteData.body, Model.zodRoute.body)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.params, Model.zodRoute.params)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.search, Model.zodRoute.search)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.body, Model.zodRoute.body)).toThrow(HttpError);
 	});
 	it("arkRouteReferenced - fail", () => {
-		expect(async()=>await Parser.parse(failRouteData.params, Model.arkRouteReferenced.params)).toThrow(HttpError);
-		expect(async()=>await Parser.parse(failRouteData.search, Model.arkRouteReferenced.search)).toThrow(HttpError);
-		expect(async()=>await Parser.parse(failRouteData.body, Model.arkRouteReferenced.body)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.params, Model.arkRouteReferenced.params)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.search, Model.arkRouteReferenced.search)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.body, Model.arkRouteReferenced.body)).toThrow(HttpError);
 	});
 	it("zodRouteReferenced - fail", () => {
-		expect(async()=>await Parser.parse(failRouteData.params, Model.zodRouteReferenced.params)).toThrow(HttpError);
-		expect(async()=>await Parser.parse(failRouteData.search, Model.zodRouteReferenced.search)).toThrow(HttpError);
-		expect(async()=>await Parser.parse(failRouteData.body, Model.zodRouteReferenced.body)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.params, Model.zodRouteReferenced.params)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.search, Model.zodRouteReferenced.search)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.body, Model.zodRouteReferenced.body)).toThrow(HttpError);
 	});
-	it("arkRoute - Real Request - fail", async ()=>{
-		new Route({ method: "POST", path: "/fail/arkRoute/hello/:hello" }, (c) => ({ body:c.body, params: c.params, search: c.search }), Model.arkRoute)
-		const url = new URL(`http://localhost:3000/fail/arkRoute/hello/${failRouteData.params.unknown}`)
+	it("arkRoute - Real Request - fail", async () => {
+		new Route({ method: "POST", path: "/fail/arkRoute/hello/:hello" }, (c) => ({ body: c.body, params: c.params, search: c.search }), Model.arkRoute)
+		const url = new URL(path("fail", "arkRoute", "hello", failRouteData.params.unknown))
 		url.searchParams.set("unknown", failRouteData.search.unknown)
-		const res = await testServer.handle(new Request(url, { body: JSON.stringify(failRouteData.body), method:"POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
+		const res = await testServer.handle(new Request(url, { body: JSON.stringify(failRouteData.body), method: "POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
 		expect(res.ok).toBe(false)
 		expect(res.status).toBe(Status.UNPROCESSABLE_ENTITY)
 	})
-	it("zodRoute - Real Request - fail", async ()=>{
-		new Route({ method: "POST", path: "/fail/zodRoute/hello/:hello" }, (c) => ({ body:c.body, params: c.params, search: c.search }), Model.zodRoute)
-		const url = new URL(`http://localhost:3000/fail/zodRoute/hello/${failRouteData.params.unknown}`)
+	it("zodRoute - Real Request - fail", async () => {
+		new Route({ method: "POST", path: "/fail/zodRoute/hello/:hello" }, (c) => ({ body: c.body, params: c.params, search: c.search }), Model.zodRoute)
+		const url = new URL(path("fail", "zodRoute", "hello", failRouteData.params.unknown))
 		url.searchParams.set("unknown", failRouteData.search.unknown)
-		const res = await testServer.handle(new Request(url, { body: JSON.stringify(failRouteData.body), method:"POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
+		const res = await testServer.handle(new Request(url, { body: JSON.stringify(failRouteData.body), method: "POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
 		expect(res.ok).toBe(false)
 		expect(res.status).toBe(Status.UNPROCESSABLE_ENTITY)
 	})
-	it("arkRouteReferenced - Real Request - fail", async ()=>{
-		new Route({ method: "POST", path: "/fail/arkRouteReferenced/hello/:hello" }, (c) => ({ body:c.body, params: c.params, search: c.search }), Model.arkRouteReferenced)
-		const url = new URL(`http://localhost:3000/fail/arkRouteReferenced/hello/${failRouteData.params.unknown}`)
+	it("arkRouteReferenced - Real Request - fail", async () => {
+		new Route({ method: "POST", path: "/fail/arkRouteReferenced/hello/:hello" }, (c) => ({ body: c.body, params: c.params, search: c.search }), Model.arkRouteReferenced)
+		const url = new URL(path("fail", "arkRouteReferenced", "hello", failRouteData.params.unknown))
 		url.searchParams.set("unknown", failRouteData.search.unknown)
-		const res = await testServer.handle(new Request(url, { body: JSON.stringify(failRouteData.body), method:"POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
+		const res = await testServer.handle(new Request(url, { body: JSON.stringify(failRouteData.body), method: "POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
 		expect(res.ok).toBe(false)
 		expect(res.status).toBe(Status.UNPROCESSABLE_ENTITY)
 	})
-	it("zodRouteReferenced - Real Request - fail", async ()=>{
-		new Route({ method: "POST", path: "/fail/zodRouteReferenced/hello/:hello" }, (c) => ({ body:c.body, params: c.params, search: c.search }), Model.zodRouteReferenced)
-		const url = new URL(`http://localhost:3000/fail/zodRouteReferenced/hello/${failRouteData.params.unknown}`)
+	it("zodRouteReferenced - Real Request - fail", async () => {
+		new Route({ method: "POST", path: "/fail/zodRouteReferenced/hello/:hello" }, (c) => ({ body: c.body, params: c.params, search: c.search }), Model.zodRouteReferenced)
+		const url = new URL(path("fail", "zodRouteReferenced", "hello", failRouteData.params.unknown))
 		url.searchParams.set("unknown", failRouteData.search.unknown)
-		const res = await testServer.handle(new Request(url, { body: JSON.stringify(failRouteData.body), method:"POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
+		const res = await testServer.handle(new Request(url, { body: JSON.stringify(failRouteData.body), method: "POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
 		expect(res.ok).toBe(false)
 		expect(res.status).toBe(Status.UNPROCESSABLE_ENTITY)
 	})
-	it("combined - Real Request - fail", async ()=>{
-		new Route({ method: "POST", path: "/fail/combined/hello/:hello" }, (c) => ({ body:c.body, params: c.params, search: c.search }), Model.combined)
-		const url = new URL(`http://localhost:3000/fail/combined/hello/${failRouteData.params.unknown}`)
+	it("combined - Real Request - fail", async () => {
+		new Route({ method: "POST", path: "/fail/combined/hello/:hello" }, (c) => ({ body: c.body, params: c.params, search: c.search }), Model.combined)
+		const url = new URL(path("fail", "combined", "hello", failRouteData.params.unknown))
 		url.searchParams.set("unknown", failRouteData.search.unknown)
-		const res = await testServer.handle(new Request(url, { body: JSON.stringify(failRouteData.body), method:"POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
+		const res = await testServer.handle(new Request(url, { body: JSON.stringify(failRouteData.body), method: "POST", headers: { [CommonHeaders.ContentType]: "application/json" } }))
 		expect(res.ok).toBe(false)
 		expect(res.status).toBe(Status.UNPROCESSABLE_ENTITY)
 	})
 
-	it("optional - provided", async ()=>{
-		const url = new URL("http://localhost:3000/controller/optional")
+	it("optional - provided", async () => {
+		const url = new URL(path("controller", "optional"))
 		url.searchParams.set("groupId", "8")
 		const res = await testServer.handle(new Request(url))
-		expect(await Parser.getBody<{groupId: number}>(res)).toEqual({groupId: 8})
+		expect(await Parser.getBody<{ groupId: number }>(res)).toEqual({ groupId: 8 })
 	})
 
-	it("optional - missing", async ()=>{
-		const url = new URL("http://localhost:3000/controller/optional")
+	it("optional - missing", async () => {
+		const url = new URL(path("controller", "optional"))
 		const res = await testServer.handle(new Request(url))
 		const body = await Parser.getBody<{}>(res)
 		expect(body).toBeEmptyObject()
 	})
 
-	it("missing required param", async ()=>{
-		const res = await testServer.handle(new Request(`http://localhost:3000/controller/missing`))
+	it("missing required param", async () => {
+		const url = new URL(path("controller", "missing"))
+		const res = await testServer.handle(new Request(url))
 		expect(res.ok).toBe(false)
 	})
 });

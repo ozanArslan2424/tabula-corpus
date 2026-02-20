@@ -8,50 +8,70 @@ import type { MiddlewareOptions } from "@/modules/Middleware/types/MiddlewareOpt
 import type { RouterMiddlewareData } from "@/modules/Router/types/RouterMiddlewareData";
 import type { RouteId } from "@/modules/Route/types/RouteId";
 import type { AnyRouteModel } from "@/modules/Parser/types/AnyRouteModel";
+import type { RouterInterface } from "@/modules/Router/RouterInterface";
 
-export class Router {
-	static globalPrefix: string = "";
+export class Router implements RouterInterface {
+	globalPrefix: string = "";
 
-	// TODO: Caching for static routes
-	static routeRegistry = new RouterRouteRegistry();
-
-	static addRoute(r: AnyRoute) {
-		return this.routeRegistry.addRoute(r);
+	setGlobalPrefix(value: string) {
+		this.globalPrefix = value;
 	}
 
-	static findRoute(req: HttpRequestInterface): RegisteredRouteData {
+	// TODO: Caching for  routes
+	routeRegistryInstance: RouterRouteRegistry | undefined;
+	get routeRegistry(): RouterRouteRegistry {
+		if (!this.routeRegistryInstance) {
+			this.routeRegistryInstance = new RouterRouteRegistry();
+		}
+		return this.routeRegistryInstance;
+	}
+	get routes(): Record<RouteId, RegisteredRouteData> {
+		return this.routeRegistry.routes;
+	}
+	addRoute(r: AnyRoute): void {
+		return this.routeRegistry.addRoute(r);
+	}
+	findRoute(req: HttpRequestInterface): RegisteredRouteData {
 		return this.routeRegistry.findRoute(req);
 	}
 
-	static get routes() {
-		return this.routeRegistry.routes;
+	middlewareRegistryInstance: RouterMiddlewareRegistry | undefined;
+	get middlewareRegistry(): RouterMiddlewareRegistry {
+		if (!this.middlewareRegistryInstance) {
+			this.middlewareRegistryInstance = new RouterMiddlewareRegistry();
+		}
+		return this.middlewareRegistryInstance;
 	}
-
-	static middlewareRegistry = new RouterMiddlewareRegistry();
-
-	static addMiddleware(opts: MiddlewareOptions) {
+	get middlewares(): Record<RouteId, RouterMiddlewareData[]> {
+		return this.middlewareRegistry.middlewares;
+	}
+	addMiddleware(opts: MiddlewareOptions): void {
 		return this.middlewareRegistry.addMiddleware(opts);
 	}
-
-	static findMiddleware(routeId: RouteId): Array<RouterMiddlewareData> {
+	findMiddleware(routeId: RouteId): Array<RouterMiddlewareData> {
+		if (!this.middlewareRegistryInstance) {
+			return [];
+		}
 		return this.middlewareRegistry.findMiddleware(routeId);
 	}
 
-	static get middlewares() {
-		return this.middlewareRegistry.middlewares;
+	modelRegistryInstance: RouterModelRegistry | undefined;
+	get modelRegistry(): RouterModelRegistry {
+		if (!this.modelRegistryInstance) {
+			this.modelRegistryInstance = new RouterModelRegistry();
+		}
+		return this.modelRegistryInstance;
 	}
-
-	static modelRegistry = new RouterModelRegistry();
-
-	static addModel(routeId: RouteId, model?: AnyRouteModel | undefined) {
+	get models(): Record<RouteId, AnyRouteModel> {
+		return this.modelRegistry.models;
+	}
+	addModel(routeId: RouteId, model: AnyRouteModel): void {
 		return this.modelRegistry.addModel(routeId, model);
 	}
-
-	static findModel(routeId: RouteId): AnyRouteModel | undefined {
+	findModel(routeId: RouteId): AnyRouteModel | undefined {
+		if (!this.modelRegistryInstance) {
+			return undefined;
+		}
 		return this.modelRegistry.findModel(routeId);
-	}
-
-	static get models() {
-		return this.modelRegistry.models;
 	}
 }

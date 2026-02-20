@@ -1,42 +1,40 @@
 import { describe, expect, it } from "bun:test";
 import { reqMaker } from "../utils/reqMaker";
+import { type } from "arktype";
 import { pathMaker } from "../utils/pathMaker";
-import z from "zod";
-import { testServer } from "../utils/testServer";
 import { Status } from "@/modules/HttpResponse/enums/Status";
 import { Route } from "@/modules/Route/Route";
+import { testServer } from "../utils/testServer";
 
-const prefix = "/request-params/zod";
+const prefix = "/request-params/arktype";
 const path = pathMaker(prefix);
 const req = reqMaker(prefix);
 
-const stringSchema = z.object({ id: z.string() });
-const numberSchema = z.object({ id: z.number() });
-const booleanSchema = z.object({ id: z.boolean() });
-const multipleSchema = z.object({ userId: z.string(), postId: z.number() });
-const constraintsSchema = z.object({ id: z.string().min(3) });
-const uuidSchema = z.object({ id: z.uuid() });
-const emailSchema = z.object({ email: z.email() });
-const numericRangeSchema = z.object({ age: z.number().min(1).max(149) });
-const literalEnumSchema = z.object({
-	status: z.enum(["active", "inactive", "pending"]),
+const stringSchema = type({ id: "string" });
+const numberSchema = type({ id: type("number") });
+const booleanSchema = type({ id: type("boolean") });
+const multipleSchema = type({ userId: "string", postId: type("number") });
+const constraintsSchema = type({ id: "string > 3" });
+const uuidSchema = type({ id: "string.uuid" });
+const emailSchema = type({ email: "string.email" });
+const numericRangeSchema = type({ age: "0 < number < 150" });
+const literalEnumSchema = type({ status: "'active' | 'inactive' | 'pending'" });
+const complexNestedSchema = type({
+	category: "string",
+	id: "string.uuid",
+	version: "number>0",
 });
-const complexNestedSchema = z.object({
-	category: z.string(),
-	id: z.uuid(),
-	version: z.number().min(1),
+const dateSchema = type({ date: "string.date" });
+const regexSchema = type({ code: "/^[A-Z]{3}-[0-9]{4}$/" });
+const typeAliasSchema = type({
+	id: type("number.integer > 0"),
+	slug: type("string").pipe((v) =>
+		v.toLocaleLowerCase().replace(/[^a-z0-9-]/g, ""),
+	),
 });
-const dateSchema = z.object({ date: z.coerce.date() });
-const regexSchema = z.object({ code: z.string().regex(/^[A-Z]{3}-[0-9]{4}$/) });
-const typeAliasSchema = z.object({
-	id: z.number().min(1),
-	slug: z
-		.string()
-		.transform((v) => v.toLocaleLowerCase().replace(/[^a-z0-9-]/g, "")),
-});
-const requiredSchema = z.object({ required: z.string() });
+const requiredSchema = type({ required: "string" });
 
-describe("Request Params - Zod", () => {
+describe("Request Params - Arktype", () => {
 	it("STRING", async () => {
 		new Route(
 			{ method: "GET", path: path("/string/:id") },
@@ -288,7 +286,7 @@ describe("Request Params - Zod", () => {
 			req(`/date/${date}`, { method: "GET" }),
 		);
 		expect(res.status).toBe(200);
-		expect(await res.text()).toBe(new Date(date).toISOString());
+		expect(await res.text()).toBe(date);
 	});
 
 	it("INVALID DATE - SHOULD FAIL", async () => {
@@ -355,15 +353,29 @@ describe("Request Params - Zod", () => {
 		expect(responseBody).toEqual({ id, slug: slugValue });
 	});
 
+	it("MISSING LAST PARAM - SHOULD FAIL", async () => {
+		new Route(
+			{ method: "GET", path: path("/missing-last/:required") },
+			(c) => c.params.required,
+			{ params: requiredSchema },
+		);
+		const res = await testServer.handle(
+			req(`/missing-last/`, { method: "GET" }),
+		);
+		// last param is missing, will be unprocessable
+		expect(res.status).toBe(Status.UNPROCESSABLE_ENTITY);
+	});
+
 	it("MISSING REQUIRED PARAM - SHOULD FAIL", async () => {
 		new Route(
-			{ method: "GET", path: path("/missing/:required") },
+			{ method: "GET", path: path("/missing-not-last/:required/not-last") },
 			(c) => c.params.required,
-			{
-				params: requiredSchema,
-			},
+			{ params: requiredSchema },
 		);
-		const res = await testServer.handle(req(`/missing/`, { method: "GET" }));
+		const res = await testServer.handle(
+			req(`/missing-not-last/`, { method: "GET" }),
+		);
+		// required param is missing, no route match
 		expect(res.status).toBe(Status.NOT_FOUND);
 	});
 });

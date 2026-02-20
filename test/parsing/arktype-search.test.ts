@@ -6,11 +6,12 @@ import { Status } from "@/modules/HttpResponse/enums/Status";
 import { Route } from "@/modules/Route/Route";
 import { testServer } from "../utils/testServer";
 
-const prefix = "/request-params/arktype";
+const prefix = "/request-search/arktype";
 const path = pathMaker(prefix);
 const req = reqMaker(prefix);
 
 const stringSchema = type({ id: "string" });
+const referencedSchema = stringSchema;
 const numberSchema = type({ id: type("number") });
 const booleanSchema = type({ id: type("boolean") });
 const multipleSchema = type({ userId: "string", postId: type("number") });
@@ -24,7 +25,7 @@ const complexNestedSchema = type({
 	id: "string.uuid",
 	version: "number>0",
 });
-const dateSchema = type({ date: "string.date" });
+const dateSchema = type({ date: "string.date.iso.parse" });
 const regexSchema = type({ code: "/^[A-Z]{3}-[0-9]{4}$/" });
 const typeAliasSchema = type({
 	id: type("number.integer > 0"),
@@ -34,111 +35,112 @@ const typeAliasSchema = type({
 });
 const requiredSchema = type({ required: "string" });
 
-describe("Request Params - Arktype", () => {
+describe("Request Search Params - Arktype", () => {
 	it("STRING", async () => {
+		new Route({ method: "GET", path: path("/string") }, (c) => c.search.id, {
+			search: stringSchema,
+		});
+		const param = "hello";
+
+		const res = await testServer.handle(
+			req(`/string`, { method: "GET", search: { id: param } }),
+		);
+		expect(res.status).toBe(200);
+		expect(await res.text()).toBe(param);
+	});
+
+	it("STRING - REFERENCED", async () => {
 		new Route(
-			{ method: "GET", path: path("/string/:id") },
-			(c) => c.params.id,
+			{ method: "GET", path: path("/string/referenced") },
+			(c) => c.search.id,
 			{
-				params: stringSchema,
+				search: referencedSchema,
 			},
 		);
 		const param = "hello";
 		const res = await testServer.handle(
-			req(`/string/${param}`, { method: "GET" }),
+			req("/string/referenced", { method: "GET", search: { id: param } }),
 		);
 		expect(res.status).toBe(200);
 		expect(await res.text()).toBe(param);
 	});
 
 	it("NUMBER", async () => {
-		new Route(
-			{ method: "GET", path: path("/number/:id") },
-			(c) => c.params.id,
-			{
-				params: numberSchema,
-			},
-		);
+		new Route({ method: "GET", path: path("/number") }, (c) => c.search.id, {
+			search: numberSchema,
+		});
 		const param = 8;
 		const res = await testServer.handle(
-			req(`/number/${param}`, { method: "GET" }),
+			req("/number", { method: "GET", search: { id: param } }),
 		);
 		expect(res.status).toBe(200);
 		expect(await res.text().then((data) => parseInt(data))).toBe(param);
 	});
 
 	it("BOOLEAN", async () => {
-		new Route(
-			{ method: "GET", path: path("/boolean/:id") },
-			(c) => c.params.id,
-			{
-				params: booleanSchema,
-			},
-		);
+		new Route({ method: "GET", path: path("/boolean") }, (c) => c.search.id, {
+			search: booleanSchema,
+		});
 		const param = true;
 		const res = await testServer.handle(
-			req(`/boolean/${param}`, { method: "GET" }),
+			req("/boolean", { method: "GET", search: { id: param } }),
 		);
 		expect(res.status).toBe(200);
 		expect(await res.text().then((data) => data === "true")).toBe(param);
 	});
 
-	it("MULTIPLE PARAMS", async () => {
-		new Route(
-			{ method: "GET", path: path("/multiple/:userId/:postId") },
-			(c) => c.params,
-			{
-				params: multipleSchema,
-			},
-		);
+	it("MULTIPLE SEARCH", async () => {
+		new Route({ method: "GET", path: path("/multiple") }, (c) => c.search, {
+			search: multipleSchema,
+		});
 		const userId = "user123";
 		const postId = 456;
 		const res = await testServer.handle(
-			req(`/multiple/${userId}/${postId}`, { method: "GET" }),
+			req("/multiple", { method: "GET", search: { userId, postId } }),
 		);
 		expect(res.status).toBe(200);
 		const responseBody = await res.json();
 		expect(responseBody).toEqual({ userId, postId });
 	});
 
-	it("PARAMS WITH CONSTRAINTS", async () => {
+	it("SEARCH WITH CONSTRAINTS", async () => {
 		new Route(
-			{ method: "GET", path: path("/constraints/:id") },
-			(c) => c.params.id,
+			{ method: "GET", path: path("/constraints") },
+			(c) => c.search.id,
 			{
-				params: constraintsSchema,
+				search: constraintsSchema,
 			},
 		);
 		const validId = "hello";
 		const res = await testServer.handle(
-			req(`/constraints/${validId}`, { method: "GET" }),
+			req("/constraints", { method: "GET", search: { id: validId } }),
 		);
 		expect(res.status).toBe(200);
 		expect(await res.text()).toBe(validId);
 	});
 
-	it("PARAMS WITH INVALID CONSTRAINT - SHOULD FAIL", async () => {
+	it("SEARCH WITH INVALID CONSTRAINT - SHOULD FAIL", async () => {
 		new Route(
-			{ method: "GET", path: path("/constraints-invalid/:id") },
-			(c) => c.params.id,
+			{ method: "GET", path: path("/constraints/invalid") },
+			(c) => c.search.id,
 			{
-				params: constraintsSchema,
+				search: constraintsSchema,
 			},
 		);
 		const invalidId = "s";
 		const res = await testServer.handle(
-			req(`/constraints-invalid/${invalidId}`, { method: "GET" }),
+			req("/constraints/invalid", { method: "GET", search: { id: invalidId } }),
 		);
 		expect(res.status).toBe(Status.UNPROCESSABLE_ENTITY);
 	});
 
 	it("UUID FORMAT", async () => {
-		new Route({ method: "GET", path: path("/uuid/:id") }, (c) => c.params.id, {
-			params: uuidSchema,
+		new Route({ method: "GET", path: path("/uuid") }, (c) => c.search.id, {
+			search: uuidSchema,
 		});
 		const uuid = "123e4567-e89b-12d3-a456-426614174000";
 		const res = await testServer.handle(
-			req(`/uuid/${uuid}`, { method: "GET" }),
+			req("/uuid", { method: "GET", search: { id: uuid } }),
 		);
 		expect(res.status).toBe(200);
 		expect(await res.text()).toBe(uuid);
@@ -146,30 +148,26 @@ describe("Request Params - Arktype", () => {
 
 	it("INVALID UUID - SHOULD FAIL", async () => {
 		new Route(
-			{ method: "GET", path: path("/uuid-invalid/:id") },
-			(c) => c.params.id,
+			{ method: "GET", path: path("/uuid/invalid") },
+			(c) => c.search.id,
 			{
-				params: uuidSchema,
+				search: uuidSchema,
 			},
 		);
 		const invalidUuid = "not-a-uuid";
 		const res = await testServer.handle(
-			req(`/uuid-invalid/${invalidUuid}`, { method: "GET" }),
+			req("/uuid/invalid", { method: "GET", search: { id: invalidUuid } }),
 		);
 		expect(res.status).toBe(Status.UNPROCESSABLE_ENTITY);
 	});
 
 	it("EMAIL FORMAT", async () => {
-		new Route(
-			{ method: "GET", path: path("/email/:email") },
-			(c) => c.params.email,
-			{
-				params: emailSchema,
-			},
-		);
+		new Route({ method: "GET", path: path("/email") }, (c) => c.search.email, {
+			search: emailSchema,
+		});
 		const email = "test@example.com";
 		const res = await testServer.handle(
-			req(`/email/${encodeURIComponent(email)}`, { method: "GET" }),
+			req("/email", { method: "GET", search: { email } }),
 		);
 		expect(res.status).toBe(200);
 		expect(await res.text()).toBe(email);
@@ -177,32 +175,29 @@ describe("Request Params - Arktype", () => {
 
 	it("INVALID EMAIL - SHOULD FAIL", async () => {
 		new Route(
-			{ method: "GET", path: path("/email-invalid/:email") },
-			(c) => c.params.email,
+			{ method: "GET", path: path("/email/invalid") },
+			(c) => c.search.email,
 			{
-				params: emailSchema,
+				search: emailSchema,
 			},
 		);
 		const invalidEmail = "not-an-email";
 		const res = await testServer.handle(
-			req(`/email-invalid/${encodeURIComponent(invalidEmail)}`, {
+			req("/email/invalid", {
 				method: "GET",
+				search: { email: invalidEmail },
 			}),
 		);
 		expect(res.status).toBe(Status.UNPROCESSABLE_ENTITY);
 	});
 
 	it("NUMERIC RANGE", async () => {
-		new Route(
-			{ method: "GET", path: path("/range/:age") },
-			(c) => c.params.age,
-			{
-				params: numericRangeSchema,
-			},
-		);
+		new Route({ method: "GET", path: path("/range") }, (c) => c.search.age, {
+			search: numericRangeSchema,
+		});
 		const validAge = 25;
 		const res = await testServer.handle(
-			req(`/range/${validAge}`, { method: "GET" }),
+			req("/range", { method: "GET", search: { age: validAge } }),
 		);
 		expect(res.status).toBe(200);
 		expect(await res.text().then(Number)).toBe(validAge);
@@ -210,30 +205,30 @@ describe("Request Params - Arktype", () => {
 
 	it("OUT OF RANGE - SHOULD FAIL", async () => {
 		new Route(
-			{ method: "GET", path: path("/range-invalid/:age") },
-			(c) => c.params.age,
+			{ method: "GET", path: path("/range/invalid") },
+			(c) => c.search.age,
 			{
-				params: numericRangeSchema,
+				search: numericRangeSchema,
 			},
 		);
 		const invalidAge = 200;
 		const res = await testServer.handle(
-			req(`/range-invalid/${invalidAge}`, { method: "GET" }),
+			req("/range/invalid", { method: "GET", search: { age: invalidAge } }),
 		);
 		expect(res.status).toBe(Status.UNPROCESSABLE_ENTITY);
 	});
 
 	it("LITERAL VALUES", async () => {
 		new Route(
-			{ method: "GET", path: path("/literal/:status") },
-			(c) => c.params.status,
+			{ method: "GET", path: path("/literal") },
+			(c) => c.search.status,
 			{
-				params: literalEnumSchema,
+				search: literalEnumSchema,
 			},
 		);
 		const status = "active";
 		const res = await testServer.handle(
-			req(`/literal/${status}`, { method: "GET" }),
+			req(`/literal`, { method: "GET", search: { status } }),
 		);
 		expect(res.status).toBe(200);
 		expect(await res.text()).toBe(status);
@@ -241,32 +236,31 @@ describe("Request Params - Arktype", () => {
 
 	it("INVALID LITERAL - SHOULD FAIL", async () => {
 		new Route(
-			{ method: "GET", path: path("/literal-invalid/:status") },
-			(c) => c.params.status,
+			{ method: "GET", path: path("/literal/invalid") },
+			(c) => c.search.status,
 			{
-				params: literalEnumSchema,
+				search: literalEnumSchema,
 			},
 		);
 		const invalidStatus = "invalid";
 		const res = await testServer.handle(
-			req(`/literal-invalid/${invalidStatus}`, { method: "GET" }),
+			req(`/literal/invalid`, {
+				method: "GET",
+				search: { status: invalidStatus },
+			}),
 		);
 		expect(res.status).toBe(Status.UNPROCESSABLE_ENTITY);
 	});
 
 	it("COMPLEX NESTED VALIDATION", async () => {
-		new Route(
-			{ method: "GET", path: path("/complex/:category/:id/:version") },
-			(c) => c.params,
-			{
-				params: complexNestedSchema,
-			},
-		);
+		new Route({ method: "GET", path: path("/complex") }, (c) => c.search, {
+			search: complexNestedSchema,
+		});
 		const category = "products";
 		const id = "123e4567-e89b-12d3-a456-426614174000";
 		const version = 2;
 		const res = await testServer.handle(
-			req(`/complex/${category}/${id}/${version}`, { method: "GET" }),
+			req(`/complex`, { method: "GET", search: { category, id, version } }),
 		);
 		expect(res.status).toBe(200);
 		const responseBody = await res.json();
@@ -274,47 +268,39 @@ describe("Request Params - Arktype", () => {
 	});
 
 	it("DATE STRING FORMAT", async () => {
-		new Route(
-			{ method: "GET", path: path("/date/:date") },
-			(c) => c.params.date,
-			{
-				params: dateSchema,
-			},
-		);
+		new Route({ method: "GET", path: path("/date") }, (c) => c.search.date, {
+			search: dateSchema,
+		});
 		const date = "2024-01-01";
 		const res = await testServer.handle(
-			req(`/date/${date}`, { method: "GET" }),
+			req(`/date`, { method: "GET", search: { date } }),
 		);
 		expect(res.status).toBe(200);
-		expect(await res.text()).toBe(date);
+		expect(await res.text()).toBe(new Date(date).toISOString());
 	});
 
 	it("INVALID DATE - SHOULD FAIL", async () => {
 		new Route(
-			{ method: "GET", path: path("/date-invalid/:date") },
-			(c) => c.params.date,
+			{ method: "GET", path: path("/date/invalid") },
+			(c) => c.search.date,
 			{
-				params: dateSchema,
+				search: dateSchema,
 			},
 		);
 		const invalidDate = "not-a-date";
 		const res = await testServer.handle(
-			req(`/date-invalid/${invalidDate}`, { method: "GET" }),
+			req(`/date/invalid`, { method: "GET", search: { date: invalidDate } }),
 		);
 		expect(res.status).toBe(Status.UNPROCESSABLE_ENTITY);
 	});
 
 	it("REGEX PATTERN", async () => {
-		new Route(
-			{ method: "GET", path: path("/regex/:code") },
-			(c) => c.params.code,
-			{
-				params: regexSchema,
-			},
-		);
+		new Route({ method: "GET", path: path("/regex") }, (c) => c.search.code, {
+			search: regexSchema,
+		});
 		const code = "ABC-1234";
 		const res = await testServer.handle(
-			req(`/regex/${code}`, { method: "GET" }),
+			req("/regex", { method: "GET", search: { code } }),
 		);
 		expect(res.status).toBe(200);
 		expect(await res.text()).toBe(code);
@@ -322,46 +308,40 @@ describe("Request Params - Arktype", () => {
 
 	it("INVALID REGEX PATTERN - SHOULD FAIL", async () => {
 		new Route(
-			{ method: "GET", path: path("/regex-invalid/:code") },
-			(c) => c.params.code,
+			{ method: "GET", path: path("/regex/invalid") },
+			(c) => c.search.code,
 			{
-				params: regexSchema,
+				search: regexSchema,
 			},
 		);
 		const invalidCode = "abc-123";
 		const res = await testServer.handle(
-			req(`/regex-invalid/${invalidCode}`, { method: "GET" }),
+			req(`/regex/invalid`, { method: "GET", search: { code: invalidCode } }),
 		);
 		expect(res.status).toBe(Status.UNPROCESSABLE_ENTITY);
 	});
 
 	it("CUSTOM TYPE ALIAS", async () => {
-		new Route(
-			{ method: "GET", path: path("/custom/:id/:slug") },
-			(c) => c.params,
-			{
-				params: typeAliasSchema,
-			},
-		);
+		new Route({ method: "GET", path: path("/custom") }, (c) => c.search, {
+			search: typeAliasSchema,
+		});
 		const id = 42;
 		const slugValue = "my-slug-123";
 		const res = await testServer.handle(
-			req(`/custom/${id}/${slugValue}`, { method: "GET" }),
+			req("/custom", { method: "GET", search: { id, slug: slugValue } }),
 		);
 		expect(res.status).toBe(200);
 		const responseBody = await res.json();
 		expect(responseBody).toEqual({ id, slug: slugValue });
 	});
 
-	it("MISSING REQUIRED PARAM - SHOULD FAIL", async () => {
+	it("MISSING REQUIRED SEARCH PARAM - SHOULD FAIL", async () => {
 		new Route(
-			{ method: "GET", path: path("/missing/:required") },
-			(c) => c.params.required,
-			{
-				params: requiredSchema,
-			},
+			{ method: "GET", path: path("/missing") },
+			(c) => c.search.required,
+			{ search: requiredSchema },
 		);
-		const res = await testServer.handle(req(`/missing/`, { method: "GET" }));
-		expect(res.status).toBe(Status.NOT_FOUND);
+		const res = await testServer.handle(req(`/missing`, { method: "GET" }));
+		expect(res.status).toBe(Status.UNPROCESSABLE_ENTITY);
 	});
 });

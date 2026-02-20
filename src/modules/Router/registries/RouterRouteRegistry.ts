@@ -109,13 +109,18 @@ export class RouterRouteRegistry {
 			route = this.routes[possibleId];
 		} else {
 			route = Object.values(this.routes).find((r) => {
+				// with params
 				if (r.endpoint.includes(":")) {
+					// pattern match first
 					const patternMatch = patternIsEqual(pathname, r.pattern);
 					if (patternMatch) return patternMatch;
+
+					// if pattern doesn't match check for missing last part param
 					const parts = textSplit("/", r.endpoint);
-					if (parts[parts.length - 1]) parts.pop();
+					if (parts[parts.length - 1]?.startsWith(":")) parts.pop();
 					return textIsEqual(joinPathSegments(...parts), pathname, "lower");
 				} else {
+					// If the route doesn't have params, do a simple equality check
 					return textIsEqual(r.endpoint, pathname, "lower");
 				}
 			});
