@@ -1,9 +1,9 @@
 import { reqMaker } from "../utils/reqMaker";
 import { pathMaker } from "../utils/pathMaker";
 import { testServer } from "../utils/testServer";
-import { Middleware } from "@/modules/Middleware/Middleware";
 import { Route } from "@/modules/Route/Route";
 import { describe, it, expect } from "bun:test";
+import { MiddlewareAbstract } from "@/modules/Middleware/MiddlewareAbstract";
 
 const prefix = "/middleware/use-on-route";
 const path = pathMaker(prefix);
@@ -15,13 +15,12 @@ describe("Middleware Data", () => {
 			{ method: "GET", path: path("/one") },
 			(c) => c.data,
 		);
-		new Middleware({
+		MiddlewareAbstract.register({
 			useOn: route,
 			handler: (c) => {
 				c.data = { hello: "world" };
 			},
 		});
-
 		const res = await testServer.handle(req("/one", { method: "GET" }));
 		expect(await res.json()).toEqual({ hello: "world" });
 	});
@@ -31,13 +30,13 @@ describe("Middleware Data", () => {
 			{ method: "GET", path: path("/two") },
 			(c) => c.data,
 		);
-		new Middleware({
+		MiddlewareAbstract.register({
 			useOn: route,
 			handler: (c) => {
 				c.data = { hello: "world" };
 			},
 		});
-		new Middleware({
+		MiddlewareAbstract.register({
 			useOn: route,
 			handler: (c) => {
 				c.data.ozan = "arslan";
@@ -52,13 +51,13 @@ describe("Middleware Data", () => {
 			{ method: "GET", path: path("/two/override") },
 			(c) => c.data,
 		);
-		new Middleware({
+		MiddlewareAbstract.register({
 			useOn: route,
 			handler: (c) => {
 				c.data.ozan = "arslan";
 			},
 		});
-		new Middleware({
+		MiddlewareAbstract.register({
 			useOn: route,
 			handler: (c) => {
 				c.data = { hello: "world" };
@@ -77,44 +76,44 @@ describe("Middleware Data", () => {
 			return c.data;
 		});
 
-		new Middleware({
+		MiddlewareAbstract.register({
 			useOn: r,
 			handler: (c) => {
 				c.data.array = [];
 				c.data.array.push(1);
 			},
 		});
-		new Middleware({
+		MiddlewareAbstract.register({
 			useOn: r,
 			handler: (c) => {
 				c.data.array?.push(2);
 			},
 		});
-		new Middleware({
+		MiddlewareAbstract.register({
 			useOn: r,
 			handler: (c) => {
 				c.data.array?.push(3);
 			},
 		});
-		new Middleware({
+		MiddlewareAbstract.register({
 			useOn: r,
 			handler: (c) => {
 				c.data.array?.push("FOUR");
 			},
 		});
-		new Middleware({
+		MiddlewareAbstract.register({
 			useOn: r,
 			handler: (c) => {
 				c.data.array?.push(5);
 			},
 		});
-		new Middleware({
+		MiddlewareAbstract.register({
 			useOn: r,
 			handler: (c) => {
 				c.data.array?.push(6);
 			},
 		});
-		new Middleware({
+		MiddlewareAbstract.register({
 			useOn: r,
 			handler: (c) => {
 				c.data.array?.push(7);

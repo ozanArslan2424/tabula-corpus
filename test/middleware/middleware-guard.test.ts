@@ -1,56 +1,58 @@
 import { reqMaker } from "../utils/reqMaker";
 import { pathMaker } from "../utils/pathMaker";
 import { testServer } from "../utils/testServer";
-import { Middleware } from "@/modules/Middleware/Middleware";
 import { Route } from "@/modules/Route/Route";
 import { describe, it, expect } from "bun:test";
 import { HttpError } from "@/modules/HttpError/HttpError";
-import { Status } from "@/exports";
-import { ControllerAbstract } from "@/modules/Controller/ControllerAbstract";
 import {
-	getRouterInstance,
-	setRouterInstance,
-} from "@/modules/Router/RouterInstance";
-import { Router } from "@/modules/Router/Router";
+	Status,
+	type MiddlewareHandler,
+	type MiddlewareUseOn,
+} from "@/exports";
+import { ControllerAbstract } from "@/modules/Controller/ControllerAbstract";
+import { MiddlewareAbstract } from "@/modules/Middleware/MiddlewareAbstract";
+import { useTempRouter } from "../utils/useTempRouter";
+import { getRouterInstance } from "@/modules/Router/RouterInstance";
 
 const prefix = "/middleware/guard";
 const path = pathMaker(prefix);
 const req = reqMaker(prefix);
 
-class Controler1 extends ControllerAbstract {
-	constructor() {
-		super({ prefix: path("/c1") });
-	}
+class Controller1 extends ControllerAbstract {
+	prefix = path("/c1");
 	r1 = this.route("/r1", () => "ok");
 	r2 = this.route("/r2", () => "ok");
 }
-class Controler2 extends ControllerAbstract {
-	constructor() {
-		super({ prefix: path("/c2") });
-	}
+class Controller2 extends ControllerAbstract {
+	prefix = path("/c2");
 	r3 = this.route("/r3", () => "ok");
 	r4 = this.route("/r4", () => "ok");
 }
 
-const c1 = new Controler1();
-const c2 = new Controler2();
+const c1 = new Controller1();
+const c2 = new Controller2();
 const r5 = new Route(path("/r5"), () => "ok");
 const r6 = new Route(path("/r6"), () => "ok");
 new Route(path("/r7"), () => "ok");
 
-new Middleware({
-	useOn: [c1.r1, r5],
-	handler: () => {
+class Middleware1 extends MiddlewareAbstract {
+	override useOn = [c1.r1, r5];
+	override handler: MiddlewareHandler = () => {
 		throw HttpError.badRequest();
-	},
-});
+	};
+}
 
-new Middleware({
-	useOn: [c2, r6],
-	handler: () => {
+class Middleware2 extends MiddlewareAbstract {
+	useOn = [c2, r6];
+	handler: MiddlewareHandler = () => {
 		throw HttpError.badRequest();
-	},
-});
+	};
+}
+
+new Middleware1();
+new Middleware2();
+
+console.log(getRouterInstance().middlewares);
 
 describe("Middleware Guard", () => {
 	it("r1", async () => {
@@ -83,28 +85,26 @@ describe("Middleware Guard", () => {
 	});
 
 	it("*", async () => {
-		const originalRouter = getRouterInstance();
-		const newRouter = new Router();
-		setRouterInstance(newRouter);
+		await useTempRouter(async () => {
+			new Route(path("/custom/r1"), () => "ok");
+			new Route(path("/custom/r2"), () => "ok");
+			new Route(path("/custom/r3"), () => "ok");
 
-		new Route(path("/custom/r1"), () => "ok");
-		new Route(path("/custom/r2"), () => "ok");
-		new Route(path("/custom/r3"), () => "ok");
+			class Middleware3 extends MiddlewareAbstract {
+				useOn: MiddlewareUseOn = "*";
+				handler: MiddlewareHandler = () => {
+					throw HttpError.badRequest();
+				};
+			}
 
-		new Middleware({
-			useOn: "*",
-			handler: () => {
-				throw HttpError.badRequest();
-			},
+			new Middleware3();
+
+			const res1 = await testServer.handle(req("/custom/r1"));
+			expect(res1.status).toBe(Status.BAD_REQUEST);
+			const res2 = await testServer.handle(req("/custom/r2"));
+			expect(res2.status).toBe(Status.BAD_REQUEST);
+			const res3 = await testServer.handle(req("/custom/r3"));
+			expect(res3.status).toBe(Status.BAD_REQUEST);
 		});
-
-		const res1 = await testServer.handle(req("/custom/r1"));
-		expect(res1.status).toBe(Status.BAD_REQUEST);
-		const res2 = await testServer.handle(req("/custom/r2"));
-		expect(res2.status).toBe(Status.BAD_REQUEST);
-		const res3 = await testServer.handle(req("/custom/r3"));
-		expect(res3.status).toBe(Status.BAD_REQUEST);
-
-		setRouterInstance(originalRouter);
 	});
 });

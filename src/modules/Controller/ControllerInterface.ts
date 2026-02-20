@@ -3,9 +3,11 @@ import type { RouteHandler } from "@/modules/Route/types/RouteHandler";
 import type { RouteDefinition } from "@/modules/Route/types/RouteDefinition";
 import type { RouteModel } from "@/modules/Parser/types/RouteSchemas";
 import type { RouteId } from "@/modules/Route/types/RouteId";
+import type { MiddlewareHandler } from "@/modules/Middleware/types/MiddlewareHandler";
 
-export interface ControllerInterface {
-	get prefix(): string | undefined;
+export interface ControllerInterface<Prefix extends string = string> {
+	prefix?: Prefix | undefined;
+	beforeEach?: MiddlewareHandler | undefined;
 	routeIds: Set<RouteId>;
 	route<
 		Path extends string = string,

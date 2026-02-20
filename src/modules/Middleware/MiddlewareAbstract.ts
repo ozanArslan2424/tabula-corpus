@@ -1,13 +1,29 @@
+import type { MiddlewareUseOn } from "@/exports";
 import type { MiddlewareInterface } from "@/modules/Middleware/MiddlewareInterface";
 import type { MiddlewareHandler } from "@/modules/Middleware/types/MiddlewareHandler";
-import type { MiddlewareOptions } from "@/modules/Middleware/types/MiddlewareOptions";
 import { getRouterInstance } from "@/modules/Router/RouterInstance";
 
+/**
+ * Simple middleware that runs before the Route "callback" parameters.
+ * Manipulates context.
+ * */
+
 export abstract class MiddlewareAbstract implements MiddlewareInterface {
-	constructor(opts: MiddlewareOptions) {
-		this.handler = opts.handler;
+	constructor() {
+		this.registerThis();
+	}
+
+	abstract handler: MiddlewareHandler;
+	abstract useOn: MiddlewareUseOn;
+
+	static register(opts: {
+		handler: MiddlewareHandler;
+		useOn: MiddlewareUseOn;
+	}) {
 		getRouterInstance().addMiddleware(opts);
 	}
 
-	handler: MiddlewareHandler;
+	private registerThis() {
+		getRouterInstance().addMiddleware(this);
+	}
 }

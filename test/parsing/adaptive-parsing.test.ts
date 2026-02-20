@@ -72,9 +72,7 @@ class Model {
 }
 
 class Controller extends ControllerAbstract {
-	constructor() {
-		super({ prefix: "/controller" });
-	}
+	override prefix?: string | undefined = "/controller";
 
 	arkRoute = this.route(
 		{ method: "POST", path: "/arkRoute/:hello" },

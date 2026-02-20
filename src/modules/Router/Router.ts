@@ -1,14 +1,14 @@
 import { RouterRouteRegistry } from "@/modules/Router/registries/RouterRouteRegistry";
 import { RouterMiddlewareRegistry } from "@/modules/Router/registries/RouterMiddlewareRegistry";
 import { RouterModelRegistry } from "@/modules/Router/registries/RouterModelRegistry";
-import type { AnyRoute } from "@/modules/Route/types/AnyRoute";
 import type { HttpRequestInterface } from "@/modules/HttpRequest/HttpRequestInterface";
 import type { RegisteredRouteData } from "@/modules/Router/types/RegisteredRouteData";
-import type { MiddlewareOptions } from "@/modules/Middleware/types/MiddlewareOptions";
 import type { RouterMiddlewareData } from "@/modules/Router/types/RouterMiddlewareData";
 import type { RouteId } from "@/modules/Route/types/RouteId";
 import type { AnyRouteModel } from "@/modules/Parser/types/AnyRouteModel";
 import type { RouterInterface } from "@/modules/Router/RouterInterface";
+import type { AnyRoute } from "@/modules/Route/types/AnyRoute";
+import type { MiddlewareInterface } from "@/modules/Middleware/MiddlewareInterface";
 
 export class Router implements RouterInterface {
 	globalPrefix: string = "";
@@ -45,8 +45,8 @@ export class Router implements RouterInterface {
 	get middlewares(): Record<RouteId, RouterMiddlewareData[]> {
 		return this.middlewareRegistry.middlewares;
 	}
-	addMiddleware(opts: MiddlewareOptions): void {
-		return this.middlewareRegistry.addMiddleware(opts);
+	addMiddleware(m: MiddlewareInterface): void {
+		return this.middlewareRegistry.addMiddleware(m);
 	}
 	findMiddleware(routeId: RouteId): Array<RouterMiddlewareData> {
 		if (!this.middlewareRegistryInstance) {

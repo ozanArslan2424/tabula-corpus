@@ -1,5 +1,5 @@
 import type { HttpRequestInterface } from "@/modules/HttpRequest/HttpRequestInterface";
-import type { MiddlewareOptions } from "@/modules/Middleware/types/MiddlewareOptions";
+import type { MiddlewareInterface } from "@/modules/Middleware/MiddlewareInterface";
 import type { AnyRouteModel } from "@/modules/Parser/types/AnyRouteModel";
 import type { AnyRoute } from "@/modules/Route/types/AnyRoute";
 import type { RouteId } from "@/modules/Route/types/RouteId";
@@ -23,7 +23,7 @@ export interface RouterInterface {
 	middlewareRegistryInstance: RouterMiddlewareRegistry | undefined;
 	get middlewareRegistry(): RouterMiddlewareRegistry;
 	get middlewares(): Record<RouteId, Array<RouterMiddlewareData>>;
-	addMiddleware(opts: MiddlewareOptions): void;
+	addMiddleware(m: MiddlewareInterface): void;
 	findMiddleware(routeId: RouteId): Array<RouterMiddlewareData>;
 
 	modelRegistryInstance: RouterModelRegistry | undefined;

@@ -3,13 +3,13 @@ import type { HttpErrorInterface } from "@/modules/HttpError/HttpErrorInterface"
 import type { HttpRequestInterface } from "@/modules/HttpRequest/HttpRequestInterface";
 import type { RegisteredRouteData } from "@/modules/Router/types/RegisteredRouteData";
 import { Route } from "@/modules/Route/Route";
-import type { AnyRoute } from "@/modules/Route/types/AnyRoute";
 import type { RouteId } from "@/modules/Route/types/RouteId";
 import { joinPathSegments } from "@/utils/joinPathSegments";
 import { patternIsEqual } from "@/utils/patternIsEqual";
 import { textIsDefined } from "@/utils/textIsDefined";
 import { textIsEqual } from "@/utils/textIsEqual";
 import { textSplit } from "@/utils/textSplit";
+import type { AnyRoute } from "@/modules/Route/types/AnyRoute";
 
 export class RouterRouteRegistry {
 	readonly possibles: string[] = [];

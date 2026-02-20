@@ -21,7 +21,7 @@ export type { HttpResponseInterface as ResponseInterface } from "@/modules/HttpR
 
 export * from "@/modules/Cors/Cors";
 
-export * from "@/modules/Middleware/Middleware";
+export { MiddlewareAbstract as Middleware } from "@/modules/Middleware/MiddlewareAbstract";
 export * from "@/modules/Middleware/types/MiddlewareHandler";
 export * from "@/modules/Middleware/types/MiddlewareUseOn";
 

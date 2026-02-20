@@ -1,5 +1,7 @@
+import type { MiddlewareUseOn } from "@/exports";
 import type { MiddlewareHandler } from "@/modules/Middleware/types/MiddlewareHandler";
 
 export interface MiddlewareInterface {
-	readonly handler: MiddlewareHandler;
+	handler: MiddlewareHandler;
+	useOn: MiddlewareUseOn;
 }

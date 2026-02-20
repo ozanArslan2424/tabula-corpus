@@ -1,19 +1,19 @@
 import type { RouterMiddlewareData } from "@/modules/Router/types/RouterMiddlewareData";
 import { Route } from "@/modules/Route/Route";
 import type { RouteId } from "@/modules/Route/types/RouteId";
-import type { MiddlewareOptions } from "@/modules/Middleware/types/MiddlewareOptions";
 import { ControllerAbstract } from "@/modules/Controller/ControllerAbstract";
+import type { MiddlewareInterface } from "@/modules/Middleware/MiddlewareInterface";
 
 export class RouterMiddlewareRegistry {
 	readonly middlewares: Record<RouteId | "*", RouterMiddlewareData[]> = {
 		"*": [],
 	};
 
-	addMiddleware(opts: MiddlewareOptions) {
+	addMiddleware(m: MiddlewareInterface) {
 		// "*" adds +1 to index but doesn't matter since global middlewares run first
 		const order = Object.keys(this.middlewares).length + 1;
-		const handler = opts.handler;
-		const useOn = opts.useOn;
+		const handler = m.handler;
+		const useOn = m.useOn;
 
 		if (useOn === "*") {
 			this.middlewares["*"].push({ order, handler });
