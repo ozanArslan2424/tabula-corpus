@@ -111,6 +111,8 @@ export abstract class HttpResponseAbstract<
 
 		// Handle other objects (custom classes, etc.)
 		this.setContentType("text/plain");
+		// TODO: ???
+		// oxlint-disable-next-line typescript/no-base-to-string
 		return String(this.body);
 	}
 

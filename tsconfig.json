@@ -1,9 +1,6 @@
 {
 	"compilerOptions": {
-		"lib": [
-			"ESNext",
-			"DOM"
-		],
+		"lib": ["ESNext", "DOM"],
 		"target": "ESNext",
 		"module": "Preserve",
 		"moduleDetection": "force",
@@ -23,15 +20,9 @@
 		"noUnusedParameters": false,
 		"noPropertyAccessFromIndexSignature": false,
 		"esModuleInterop": true,
-		// "baseUrl": ".",
 		"paths": {
-			"@/*": [
-				"./src/*"
-			]
+			"@/*": ["./src/*"]
 		}
 	},
-	"exclude": [
-		"dist",
-		"node_modules"
-	]
+	"exclude": ["dist", "node_modules"]
 }

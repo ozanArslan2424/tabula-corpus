@@ -18,7 +18,6 @@ export class Router implements RouterInterface {
 		this.globalPrefix = value;
 	}
 
-	// TODO: Caching for  routes
 	routeRegistryInstance: RouteRegistry | undefined;
 	get routeRegistry(): RouteRegistry {
 		if (!this.routeRegistryInstance) {

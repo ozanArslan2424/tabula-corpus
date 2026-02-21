@@ -9,8 +9,6 @@ const globalPrefix = "/middleware/use-globally";
 const path = pathMaker(globalPrefix);
 const req = reqMaker(globalPrefix);
 
-// TODO: Middleware call order is reversed
-
 const register = (pfx: string) => {
 	class TestController extends Controller {
 		constructor() {

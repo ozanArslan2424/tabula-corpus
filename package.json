@@ -1,5 +1,5 @@
 {
-	"name": "coreum",
+	"name": "@tabula/corpus",
 	"type": "module",
 	"module": "index.ts",
 	"version": "0.0.2-1",
@@ -12,10 +12,10 @@
 		"dist/*.js",
 		"dist/*.d.ts"
 	],
-	"homepage": "https://github.com/ozanArslan2424/coreum.git#readme",
+	"homepage": "https://github.com/ozanArslan2424/corpus.git#readme",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/ozanArslan2424/coreum.git"
+		"url": "https://github.com/ozanArslan2424/corpus.git"
 	},
 	"keywords": [
 		"bun serve",

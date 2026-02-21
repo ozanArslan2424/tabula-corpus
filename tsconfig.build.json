@@ -1,6 +1,6 @@
 {
 	"extends": "./tsconfig.json",
-	"include": ["src/index.ts", "src/coreum.d.ts"],
+	"include": ["src/index.ts", "src/types.d.ts"],
 	"exclude": ["node_modules", "dist", "test", "**/*.test.ts", "**/*.spec.ts"],
 	"compilerOptions": {
 		"noEmit": false,
