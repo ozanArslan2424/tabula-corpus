@@ -1,6 +1,3 @@
-import { RouterRouteRegistry } from "@/modules/Router/registries/RouterRouteRegistry";
-import { RouterMiddlewareRegistry } from "@/modules/Router/registries/RouterMiddlewareRegistry";
-import { RouterModelRegistry } from "@/modules/Router/registries/RouterModelRegistry";
 import type { AnyRoute } from "@/modules/Route/types/AnyRoute";
 import type { HttpRequestInterface } from "@/modules/HttpRequest/HttpRequestInterface";
 import type { RegisteredRouteData } from "@/modules/Router/types/RegisteredRouteData";
@@ -9,6 +6,10 @@ import type { RouterMiddlewareData } from "@/modules/Router/types/RouterMiddlewa
 import type { RouteId } from "@/modules/Route/types/RouteId";
 import type { AnyRouteModel } from "@/modules/Parser/types/AnyRouteModel";
 import type { RouterInterface } from "@/modules/Router/RouterInterface";
+import type { RegisteredModelData } from "@/modules/Router/types/RegisteredModelData";
+import { RouteRegistry } from "@/modules/Registry/RouteRegistry";
+import { MiddlewareRegistry } from "@/modules/Registry/MiddlewareRegistry";
+import { ModelRegistry } from "@/modules/Registry/ModelRegistry";
 
 export class Router implements RouterInterface {
 	globalPrefix: string = "";
@@ -18,60 +19,60 @@ export class Router implements RouterInterface {
 	}
 
 	// TODO: Caching for  routes
-	routeRegistryInstance: RouterRouteRegistry | undefined;
-	get routeRegistry(): RouterRouteRegistry {
+	routeRegistryInstance: RouteRegistry | undefined;
+	get routeRegistry(): RouteRegistry {
 		if (!this.routeRegistryInstance) {
-			this.routeRegistryInstance = new RouterRouteRegistry();
+			this.routeRegistryInstance = new RouteRegistry();
 		}
 		return this.routeRegistryInstance;
 	}
 	get routes(): Record<RouteId, RegisteredRouteData> {
-		return this.routeRegistry.routes;
+		return this.routeRegistry.data;
 	}
 	addRoute(r: AnyRoute): void {
-		return this.routeRegistry.addRoute(r);
+		return this.routeRegistry.add(r);
 	}
 	findRoute(req: HttpRequestInterface): RegisteredRouteData {
-		return this.routeRegistry.findRoute(req);
+		return this.routeRegistry.find(req);
 	}
 
-	middlewareRegistryInstance: RouterMiddlewareRegistry | undefined;
-	get middlewareRegistry(): RouterMiddlewareRegistry {
+	middlewareRegistryInstance: MiddlewareRegistry | undefined;
+	get middlewareRegistry(): MiddlewareRegistry {
 		if (!this.middlewareRegistryInstance) {
-			this.middlewareRegistryInstance = new RouterMiddlewareRegistry();
+			this.middlewareRegistryInstance = new MiddlewareRegistry();
 		}
 		return this.middlewareRegistryInstance;
 	}
 	get middlewares(): Record<RouteId, RouterMiddlewareData[]> {
-		return this.middlewareRegistry.middlewares;
+		return this.middlewareRegistry.data;
 	}
 	addMiddleware(opts: MiddlewareOptions): void {
-		return this.middlewareRegistry.addMiddleware(opts);
+		return this.middlewareRegistry.add(opts);
 	}
 	findMiddleware(routeId: RouteId): Array<RouterMiddlewareData> {
 		if (!this.middlewareRegistryInstance) {
 			return [];
 		}
-		return this.middlewareRegistry.findMiddleware(routeId);
+		return this.middlewareRegistry.find(routeId);
 	}
 
-	modelRegistryInstance: RouterModelRegistry | undefined;
-	get modelRegistry(): RouterModelRegistry {
+	modelRegistryInstance: ModelRegistry | undefined;
+	get modelRegistry(): ModelRegistry {
 		if (!this.modelRegistryInstance) {
-			this.modelRegistryInstance = new RouterModelRegistry();
+			this.modelRegistryInstance = new ModelRegistry();
 		}
 		return this.modelRegistryInstance;
 	}
-	get models(): Record<RouteId, AnyRouteModel> {
-		return this.modelRegistry.models;
+	get models(): Record<RouteId, RegisteredModelData> {
+		return this.modelRegistry.data;
 	}
 	addModel(routeId: RouteId, model: AnyRouteModel): void {
-		return this.modelRegistry.addModel(routeId, model);
+		return this.modelRegistry.add(routeId, model);
 	}
-	findModel(routeId: RouteId): AnyRouteModel | undefined {
+	findModel(routeId: RouteId): RegisteredModelData | undefined {
 		if (!this.modelRegistryInstance) {
 			return undefined;
 		}
-		return this.modelRegistry.findModel(routeId);
+		return this.modelRegistry.find(routeId);
 	}
 }

@@ -1,3 +1,3 @@
-import type { RouteModel } from "@/modules/Parser/types/RouteSchemas";
+import type { RouteModel } from "@/modules/Parser/types/RouteModel";
 
 export type AnyRouteModel = RouteModel<any, any, any, any>;

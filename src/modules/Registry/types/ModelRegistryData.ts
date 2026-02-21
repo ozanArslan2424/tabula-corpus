@@ -1,6 +1,6 @@
 import type { SchemaData } from "@/modules/Registry/types/SchemaData";
 
-export type RegisteredModelData<
+export type ModelRegistryData<
 	R = unknown,
 	B = unknown,
 	S = unknown,

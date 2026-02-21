@@ -3,7 +3,7 @@ import type { HttpRequestInterface } from "@/modules/HttpRequest/HttpRequestInte
 import { Parser } from "@/modules/Parser/Parser";
 import { ContextAbstract } from "@/modules/Context/ContextAbstract";
 import type { ContextInterface } from "@/modules/Context/ContextInterface";
-import type { RouteModel } from "@/modules/Parser/types/RouteSchemas";
+import type { RegisteredModelData } from "@/modules/Router/types/RegisteredModelData";
 
 /**
  * The context object used in Route "callback" parameter.
@@ -41,7 +41,7 @@ export class Context<R = unknown, B = unknown, S = unknown, P = unknown>
 	>(
 		request: HttpRequestInterface,
 		path: Path,
-		model?: RouteModel<R, B, S, P>,
+		model?: RegisteredModelData<R, B, S, P>,
 	): Promise<ContextInterface<R, B, S, P>> {
 		const req = new HttpRequest(request);
 		const url = new URL(req.url);

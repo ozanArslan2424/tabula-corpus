@@ -4,7 +4,7 @@ import { Route } from "@/modules/Route/Route";
 import type { ControllerOptions } from "@/modules/Controller/types/ControllerOptions";
 import type { RouteHandler } from "@/modules/Route/types/RouteHandler";
 import type { RouteDefinition } from "@/modules/Route/types/RouteDefinition";
-import type { RouteModel } from "@/modules/Parser/types/RouteSchemas";
+import type { RouteModel } from "@/modules/Parser/types/RouteModel";
 import { joinPathSegments } from "@/utils/joinPathSegments";
 import { Method } from "@/modules/HttpRequest/enums/Method";
 import type { RouteId } from "@/modules/Route/types/RouteId";

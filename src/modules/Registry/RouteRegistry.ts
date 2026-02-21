@@ -1,44 +1,46 @@
+import type { HttpRequestInterface } from "@/modules/HttpRequest/HttpRequestInterface";
+import type { RouteRegistryData } from "@/modules/Registry/types/RouteRegistryData";
+import type { RouteId } from "@/modules/Route/types/RouteId";
 import { HttpError } from "@/modules/HttpError/HttpError";
 import type { HttpErrorInterface } from "@/modules/HttpError/HttpErrorInterface";
-import type { HttpRequestInterface } from "@/modules/HttpRequest/HttpRequestInterface";
-import type { RegisteredRouteData } from "@/modules/Router/types/RegisteredRouteData";
 import { Route } from "@/modules/Route/Route";
-import type { AnyRoute } from "@/modules/Route/types/AnyRoute";
-import type { RouteId } from "@/modules/Route/types/RouteId";
 import { joinPathSegments } from "@/utils/joinPathSegments";
 import { patternIsEqual } from "@/utils/patternIsEqual";
 import { textIsDefined } from "@/utils/textIsDefined";
 import { textIsEqual } from "@/utils/textIsEqual";
 import { textSplit } from "@/utils/textSplit";
+import type { AnyRoute } from "@/modules/Route/types/AnyRoute";
 
-export class RouterRouteRegistry {
-	readonly possibles: string[] = [];
-	readonly routes: Record<RouteId, RegisteredRouteData> = {};
+export class RouteRegistry {
+	private readonly possibles: string[] = [];
+	readonly data: Record<RouteId, RouteRegistryData> = {};
 
-	addRoute(r: AnyRoute) {
-		this.checkPossibleCollision(r.endpoint, r.method);
-		this.addPossibleCollision(r.endpoint);
-		this.routes[r.id] = {
-			id: r.id,
-			endpoint: r.endpoint,
-			method: r.method,
-			pattern: r.pattern,
-			handler: r.handler,
+	add(route: AnyRoute): void {
+		this.checkPossibleCollision(route.endpoint, route.method);
+		this.addPossibleCollision(route.endpoint);
+		this.data[route.id] = {
+			id: route.id,
+			pattern: route.pattern,
+			method: route.method,
+			endpoint: route.endpoint,
+			handler: route.handler,
 		};
 	}
 
-	findRoute(req: HttpRequestInterface): RegisteredRouteData {
-		const pathname = new URL(req.url).pathname;
-
-		const route = this.findRouteByPathname(pathname, req.method.toUpperCase());
+	find(req: HttpRequestInterface): RouteRegistryData {
+		const route = this.findRouteByPathname(
+			new URL(req.url).pathname,
+			req.method.toUpperCase(),
+		);
 
 		if (route instanceof Error) {
 			throw route;
 		}
+
 		return route;
 	}
 
-	addPossibleCollision(routePath: string) {
+	private addPossibleCollision(routePath: string) {
 		const parts = textSplit("/", routePath);
 		if (!this.possibles.includes(routePath)) {
 			this.possibles.push(routePath);
@@ -55,7 +57,7 @@ export class RouterRouteRegistry {
 		}
 	}
 
-	checkPossibleCollision(routePath: string, method: string) {
+	private checkPossibleCollision(routePath: string, method: string) {
 		for (const possible of this.possibles) {
 			if (possible === routePath) continue;
 
@@ -79,7 +81,7 @@ export class RouterRouteRegistry {
 		}
 	}
 
-	pathsCollide(path1: string, path2: string): boolean {
+	private pathsCollide(path1: string, path2: string): boolean {
 		const parts1 = textSplit("/", path1);
 		const parts2 = textSplit("/", path2);
 
@@ -98,17 +100,17 @@ export class RouterRouteRegistry {
 		return true;
 	}
 
-	findRouteByPathname(
+	private findRouteByPathname(
 		pathname: string,
 		method: string,
-	): RegisteredRouteData | HttpErrorInterface {
+	): RouteRegistryData | HttpErrorInterface {
 		const possibleId: RouteId = `[${method}]:[${pathname}]`;
-		let route: RegisteredRouteData | undefined;
+		let route: RouteRegistryData | undefined;
 
-		if (this.routes[possibleId]) {
-			route = this.routes[possibleId];
+		if (this.data[possibleId]) {
+			route = this.data[possibleId];
 		} else {
-			route = Object.values(this.routes).find((r) => {
+			route = Object.values(this.data).find((r) => {
 				// with params
 				if (r.endpoint.includes(":")) {
 					// pattern match first

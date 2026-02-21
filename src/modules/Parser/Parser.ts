@@ -7,25 +7,29 @@ import type { HttpResponseInterface } from "@/modules/HttpResponse/HttpResponseI
 import { CommonHeaders } from "@/modules/HttpHeaders/enums/CommonHeaders";
 import { Method } from "@/modules/HttpRequest/enums/Method";
 import { isFoundIn } from "@/utils/isFoundIn";
-import type { Schema } from "@/modules/Parser/types/Schema";
 import type { StandardSchemaV1 } from "@/modules/Parser/types/StandardSchema";
 import { isObjectWith } from "@/utils/isObjectWith";
 import type { UnknownObject } from "@/utils/UnknownObject";
 import type { ReqRes } from "@/modules/Parser/types/ReqRes";
+import type { SchemaData } from "@/modules/Registry/types/SchemaData";
 
 export class Parser {
+	// TODO: .pipe method doesn't infer correctly because arktype generics are hard
 	static async parse<T = UnknownObject>(
 		data: unknown,
-		schema?: Schema<T>,
+		schema?: SchemaData<T>,
 	): Promise<T> {
 		if (!schema) return data as T;
-		const std = schema["~standard"] as StandardSchemaV1.Props<unknown, T>;
-		const result = await std.validate(data);
+		const result = await schema.validate(data);
 		if (result.issues !== undefined) {
 			const msg = this.issuesToErrorMessage(result.issues);
 			throw HttpError.unprocessableEntity(msg);
 		}
 		return result.value;
+	}
+
+	static getParserVendor(schema: SchemaData) {
+		return schema.vendor;
 	}
 
 	static issuesToErrorMessage(
@@ -52,14 +56,9 @@ export class Parser {
 			.join("\n");
 	}
 
-	// TODO: .pipe method doesn't work because arktype generics are hard
-	static getParserVendor(schema: Schema) {
-		return schema["~standard"].vendor;
-	}
-
 	static async getSearch<S = UnknownObject>(
 		url: URL,
-		schema?: Schema<S>,
+		schema?: SchemaData<S>,
 	): Promise<S> {
 		const data: UnknownObject = {};
 
@@ -72,7 +71,7 @@ export class Parser {
 
 	static async getBody<B = UnknownObject>(
 		r: HttpRequestInterface | HttpResponseInterface | Response,
-		schema?: Schema<B>,
+		schema?: SchemaData<B>,
 	): Promise<B> {
 		let data;
 		const empty = {} as B;
@@ -119,7 +118,7 @@ export class Parser {
 	static async getParams<P = UnknownObject>(
 		path: string,
 		url: URL,
-		schema?: Schema<P>,
+		schema?: SchemaData<P>,
 	): Promise<P> {
 		const data: UnknownObject = {};
 

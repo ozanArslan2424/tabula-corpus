@@ -1,6 +1,6 @@
 import type { RouteInterface } from "@/modules/Route/RouteInterface";
 import { RouteAbstract } from "@/modules/Route/RouteAbstract";
-import type { RouteModel } from "@/modules/Parser/types/RouteSchemas";
+import type { RouteModel } from "@/modules/Parser/types/RouteModel";
 import type { RouteDefinition } from "@/modules/Route/types/RouteDefinition";
 import type { RouteHandler } from "@/modules/Route/types/RouteHandler";
 import type { Method } from "@/modules/HttpRequest/enums/Method";

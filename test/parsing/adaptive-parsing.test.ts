@@ -121,58 +121,58 @@ const path = (...segments: (string | number)[]) =>
 
 // prettier-ignore
 describe("adaptive parsing based on library and schema definition", () => {
-	it("arkBasic - variant", () => { expect(Parser.getParserVendor(arkBasic)).toBe("arktype"); });
-	it("zodBasic - variant", () => { expect(Parser.getParserVendor(zodBasic)).toBe("zod"); });
-	it("arkModelBasic - variant", () => { expect(Parser.getParserVendor(Model.arkModelBasic)).toBe("arktype"); });
-	it("zodModelBasic - variant", () => { expect(Parser.getParserVendor(Model.zodModelBasic)).toBe("zod"); });
-	it("arkReferenced - variant", () => { expect(Parser.getParserVendor(Model.arkReferenced)).toBe("arktype"); });
-	it("zodReferenced - variant", () => { expect(Parser.getParserVendor(Model.zodReferenced)).toBe("zod"); });
+	it("arkBasic - variant", () => { expect(Parser.getParserVendor(arkBasic["~standard"])).toBe("arktype"); });
+	it("zodBasic - variant", () => { expect(Parser.getParserVendor(zodBasic["~standard"])).toBe("zod"); });
+	it("arkModelBasic - variant", () => { expect(Parser.getParserVendor(Model.arkModelBasic["~standard"])).toBe("arktype"); });
+	it("zodModelBasic - variant", () => { expect(Parser.getParserVendor(Model.zodModelBasic["~standard"])).toBe("zod"); });
+	it("arkReferenced - variant", () => { expect(Parser.getParserVendor(Model.arkReferenced["~standard"])).toBe("arktype"); });
+	it("zodReferenced - variant", () => { expect(Parser.getParserVendor(Model.zodReferenced["~standard"])).toBe("zod"); });
 	it("arkRoute - variant", () => {
-		expect(Parser.getParserVendor(Model.arkRoute.params)).toBe("arktype");
-		expect(Parser.getParserVendor(Model.arkRoute.search)).toBe("arktype");
-		expect(Parser.getParserVendor(Model.arkRoute.body)).toBe("arktype");
+		expect(Parser.getParserVendor(Model.arkRoute.params["~standard"])).toBe("arktype");
+		expect(Parser.getParserVendor(Model.arkRoute.search["~standard"])).toBe("arktype");
+		expect(Parser.getParserVendor(Model.arkRoute.body["~standard"])).toBe("arktype");
 	});
 	it("zodRoute - variant", () => {
-		expect(Parser.getParserVendor(Model.zodRoute.params)).toBe("zod");
-		expect(Parser.getParserVendor(Model.zodRoute.search)).toBe("zod");
-		expect(Parser.getParserVendor(Model.zodRoute.body)).toBe("zod");
+		expect(Parser.getParserVendor(Model.zodRoute.params["~standard"])).toBe("zod");
+		expect(Parser.getParserVendor(Model.zodRoute.search["~standard"])).toBe("zod");
+		expect(Parser.getParserVendor(Model.zodRoute.body["~standard"])).toBe("zod");
 	});
 	it("arkRouteReferenced - variant", () => {
-		expect(Parser.getParserVendor(Model.arkRouteReferenced.params)).toBe("arktype");
-		expect(Parser.getParserVendor(Model.arkRouteReferenced.search)).toBe("arktype");
-		expect(Parser.getParserVendor(Model.arkRouteReferenced.body)).toBe("arktype");
+		expect(Parser.getParserVendor(Model.arkRouteReferenced.params["~standard"])).toBe("arktype");
+		expect(Parser.getParserVendor(Model.arkRouteReferenced.search["~standard"])).toBe("arktype");
+		expect(Parser.getParserVendor(Model.arkRouteReferenced.body["~standard"])).toBe("arktype");
 	});
 	it("zodRouteReferenced - variant", () => {
-		expect(Parser.getParserVendor(Model.zodRouteReferenced.params)).toBe("zod");
-		expect(Parser.getParserVendor(Model.zodRouteReferenced.search)).toBe("zod");
-		expect(Parser.getParserVendor(Model.zodRouteReferenced.body)).toBe("zod");
+		expect(Parser.getParserVendor(Model.zodRouteReferenced.params["~standard"])).toBe("zod");
+		expect(Parser.getParserVendor(Model.zodRouteReferenced.search["~standard"])).toBe("zod");
+		expect(Parser.getParserVendor(Model.zodRouteReferenced.body["~standard"])).toBe("zod");
 	});
 
-	it("arkBasic - success", async () => { expect(await Parser.parse(successData, arkBasic)).toEqual(successData); });
-	it("zodBasic - success", async () => { expect(await Parser.parse(successData, zodBasic)).toEqual(successData); });
-	it("arkModelBasic - success", async () => { expect(await Parser.parse(successData, Model.arkModelBasic)).toEqual(successData); });
-	it("zodModelBasic - success", async () => { expect(await Parser.parse(successData, Model.zodModelBasic)).toEqual(successData); });
-	it("arkReferenced - success", async () => { expect(await Parser.parse(successData, Model.arkReferenced)).toEqual(successData); });
-	it("zodReferenced - success", async () => { expect(await Parser.parse(successData, Model.zodReferenced)).toEqual(successData); });
+	it("arkBasic - success", async () => { expect(await Parser.parse(successData, arkBasic["~standard"])).toEqual(successData); });
+	it("zodBasic - success", async () => { expect(await Parser.parse(successData, zodBasic["~standard"])).toEqual(successData); });
+	it("arkModelBasic - success", async () => { expect(await Parser.parse(successData, Model.arkModelBasic["~standard"])).toEqual(successData); });
+	it("zodModelBasic - success", async () => { expect(await Parser.parse(successData, Model.zodModelBasic["~standard"])).toEqual(successData); });
+	it("arkReferenced - success", async () => { expect(await Parser.parse(successData, Model.arkReferenced["~standard"])).toEqual(successData); });
+	it("zodReferenced - success", async () => { expect(await Parser.parse(successData, Model.zodReferenced["~standard"])).toEqual(successData); });
 	it("arkRoute - success", async () => {
-		expect(await Parser.parse(successRouteData.params, Model.arkRoute.params)).toEqual(successRouteData.params);
-		expect(await Parser.parse(successRouteData.search, Model.arkRoute.search)).toEqual(successRouteData.search);
-		expect(await Parser.parse(successRouteData.body, Model.arkRoute.body)).toEqual(successRouteData.body);
+		expect(await Parser.parse(successRouteData.params, Model.arkRoute.params["~standard"])).toEqual(successRouteData.params);
+		expect(await Parser.parse(successRouteData.search, Model.arkRoute.search["~standard"])).toEqual(successRouteData.search);
+		expect(await Parser.parse(successRouteData.body, Model.arkRoute.body["~standard"])).toEqual(successRouteData.body);
 	});
 	it("zodRoute - success", async () => {
-		expect(await Parser.parse(successRouteData.params, Model.zodRoute.params)).toEqual(successRouteData.params);
-		expect(await Parser.parse(successRouteData.search, Model.zodRoute.search)).toEqual(successRouteData.search);
-		expect(await Parser.parse(successRouteData.body, Model.zodRoute.body)).toEqual(successRouteData.body);
+		expect(await Parser.parse(successRouteData.params, Model.zodRoute.params["~standard"])).toEqual(successRouteData.params);
+		expect(await Parser.parse(successRouteData.search, Model.zodRoute.search["~standard"])).toEqual(successRouteData.search);
+		expect(await Parser.parse(successRouteData.body, Model.zodRoute.body["~standard"])).toEqual(successRouteData.body);
 	});
 	it("arkRouteReferenced - success", async () => {
-		expect(await Parser.parse(successRouteData.params, Model.arkRouteReferenced.params)).toEqual(successRouteData.params);
-		expect(await Parser.parse(successRouteData.search, Model.arkRouteReferenced.search)).toEqual(successRouteData.search);
-		expect(await Parser.parse(successRouteData.body, Model.arkRouteReferenced.body)).toEqual(successRouteData.body);
+		expect(await Parser.parse(successRouteData.params, Model.arkRouteReferenced.params["~standard"])).toEqual(successRouteData.params);
+		expect(await Parser.parse(successRouteData.search, Model.arkRouteReferenced.search["~standard"])).toEqual(successRouteData.search);
+		expect(await Parser.parse(successRouteData.body, Model.arkRouteReferenced.body["~standard"])).toEqual(successRouteData.body);
 	});
 	it("zodRouteReferenced - success", async () => {
-		expect(await Parser.parse(successRouteData.params, Model.zodRouteReferenced.params)).toEqual(successRouteData.params);
-		expect(await Parser.parse(successRouteData.search, Model.zodRouteReferenced.search)).toEqual(successRouteData.search);
-		expect(await Parser.parse(successRouteData.body, Model.zodRouteReferenced.body)).toEqual(successRouteData.body);
+		expect(await Parser.parse(successRouteData.params, Model.zodRouteReferenced.params["~standard"])).toEqual(successRouteData.params);
+		expect(await Parser.parse(successRouteData.search, Model.zodRouteReferenced.search["~standard"])).toEqual(successRouteData.search);
+		expect(await Parser.parse(successRouteData.body, Model.zodRouteReferenced.body["~standard"])).toEqual(successRouteData.body);
 	});
 	it("arkRoute - Real Request - success", async () => {
 		new Route({ method: "POST", path: "/success/arkRoute/hello/:hello" }, (c) => ({ body: c.body, params: c.params, search: c.search }), Model.arkRoute)
@@ -217,31 +217,31 @@ describe("adaptive parsing based on library and schema definition", () => {
 	})
 
 
-	it("arkBasic - fail", () => { expect(async () => await Parser.parse(failData, arkBasic)).toThrow(HttpError); });
-	it("zodBasic - fail", () => { expect(async () => await Parser.parse(failData, zodBasic)).toThrow(HttpError); });
-	it("arkModelBasic - fail", () => { expect(async () => await Parser.parse(failData, Model.arkModelBasic)).toThrow(HttpError); });
-	it("zodModelBasic - fail", () => { expect(async () => await Parser.parse(failData, Model.zodModelBasic)).toThrow(HttpError); });
-	it("arkReferenced - fail", () => { expect(async () => await Parser.parse(failData, Model.arkReferenced)).toThrow(HttpError); });
-	it("zodReferenced - fail", () => { expect(async () => await Parser.parse(failData, Model.zodReferenced)).toThrow(HttpError); });
+	it("arkBasic - fail", () => { expect(async () => await Parser.parse(failData, arkBasic["~standard"])).toThrow(HttpError); });
+	it("zodBasic - fail", () => { expect(async () => await Parser.parse(failData, zodBasic["~standard"])).toThrow(HttpError); });
+	it("arkModelBasic - fail", () => { expect(async () => await Parser.parse(failData, Model.arkModelBasic["~standard"])).toThrow(HttpError); });
+	it("zodModelBasic - fail", () => { expect(async () => await Parser.parse(failData, Model.zodModelBasic["~standard"])).toThrow(HttpError); });
+	it("arkReferenced - fail", () => { expect(async () => await Parser.parse(failData, Model.arkReferenced["~standard"])).toThrow(HttpError); });
+	it("zodReferenced - fail", () => { expect(async () => await Parser.parse(failData, Model.zodReferenced["~standard"])).toThrow(HttpError); });
 	it("arkRoute - fail", () => {
-		expect(async () => await Parser.parse(failRouteData.params, Model.arkRoute.params)).toThrow(HttpError);
-		expect(async () => await Parser.parse(failRouteData.search, Model.arkRoute.search)).toThrow(HttpError);
-		expect(async () => await Parser.parse(failRouteData.body, Model.arkRoute.body)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.params, Model.arkRoute.params["~standard"])).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.search, Model.arkRoute.search["~standard"])).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.body, Model.arkRoute.body["~standard"])).toThrow(HttpError);
 	});
 	it("zodRoute - fail", () => {
-		expect(async () => await Parser.parse(failRouteData.params, Model.zodRoute.params)).toThrow(HttpError);
-		expect(async () => await Parser.parse(failRouteData.search, Model.zodRoute.search)).toThrow(HttpError);
-		expect(async () => await Parser.parse(failRouteData.body, Model.zodRoute.body)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.params, Model.zodRoute.params["~standard"])).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.search, Model.zodRoute.search["~standard"])).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.body, Model.zodRoute.body["~standard"])).toThrow(HttpError);
 	});
 	it("arkRouteReferenced - fail", () => {
-		expect(async () => await Parser.parse(failRouteData.params, Model.arkRouteReferenced.params)).toThrow(HttpError);
-		expect(async () => await Parser.parse(failRouteData.search, Model.arkRouteReferenced.search)).toThrow(HttpError);
-		expect(async () => await Parser.parse(failRouteData.body, Model.arkRouteReferenced.body)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.params, Model.arkRouteReferenced.params["~standard"])).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.search, Model.arkRouteReferenced.search["~standard"])).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.body, Model.arkRouteReferenced.body["~standard"])).toThrow(HttpError);
 	});
 	it("zodRouteReferenced - fail", () => {
-		expect(async () => await Parser.parse(failRouteData.params, Model.zodRouteReferenced.params)).toThrow(HttpError);
-		expect(async () => await Parser.parse(failRouteData.search, Model.zodRouteReferenced.search)).toThrow(HttpError);
-		expect(async () => await Parser.parse(failRouteData.body, Model.zodRouteReferenced.body)).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.params, Model.zodRouteReferenced.params["~standard"])).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.search, Model.zodRouteReferenced.search["~standard"])).toThrow(HttpError);
+		expect(async () => await Parser.parse(failRouteData.body, Model.zodRouteReferenced.body["~standard"])).toThrow(HttpError);
 	});
 	it("arkRoute - Real Request - fail", async () => {
 		new Route({ method: "POST", path: "/fail/arkRoute/hello/:hello" }, (c) => ({ body: c.body, params: c.params, search: c.search }), Model.arkRoute)
