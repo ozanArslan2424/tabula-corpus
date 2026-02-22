@@ -5,6 +5,7 @@ import { ServerUsingBun } from "@/modules/Server/variants/ServerUsingBun";
 import { ServerUsingNode } from "@/modules/Server/variants/ServerUsingNode";
 import type { ServeOptions } from "@/modules/Server/types/ServeOptions";
 import { getRuntime } from "@/modules/Runtime/getRuntime";
+import { Router, setRouterInstance } from "@/modules/Router";
 
 /**
  * Server is the entrypoint to the app. It must be initialized before registering routes and middlewares.
@@ -14,6 +15,7 @@ import { getRuntime } from "@/modules/Runtime/getRuntime";
 export class Server extends ServerAbstract implements ServerInterface {
 	constructor() {
 		super();
+		setRouterInstance(new Router());
 		this.instance = this.getInstance();
 	}
 

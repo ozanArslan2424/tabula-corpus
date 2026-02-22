@@ -13,16 +13,9 @@ import type { ErrorHandler } from "@/modules/Server/types/ErrorHandler";
 import { Cors } from "@/modules/Cors/Cors";
 import type { CorsOptions } from "@/modules/Cors/types/CorsOptions";
 import type { MaybePromise } from "@/types/MaybePromise";
-import { Router } from "@/modules/Router/Router";
-import {
-	getRouterInstance,
-	setRouterInstance,
-} from "@/modules/Router/RouterInstance";
+import { getRouterInstance } from "@/modules/Router/RouterInstance";
 
 export abstract class ServerAbstract implements ServerInterface {
-	constructor() {
-		setRouterInstance(new Router());
-	}
 	abstract serve(options: ServeOptions): void;
 	abstract exit(): Promise<void>;
 
