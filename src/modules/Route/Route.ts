@@ -6,7 +6,7 @@ import type { RouteHandler } from "@/modules/Route/types/RouteHandler";
 import type { Method } from "@/modules/HttpRequest/enums/Method";
 import type { RouteId } from "@/modules/Route/types/RouteId";
 import { RouteVariant } from "@/modules/Route/enums/RouteVariant";
-import { getRouterInstance } from "@/modules/Router/RouterInstance";
+import { getRouterInstance } from "@/index";
 
 /**
  * The object to define an endpoint. Can be instantiated with "new" or inside a controller

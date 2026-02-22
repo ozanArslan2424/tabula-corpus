@@ -7,7 +7,7 @@ import { RouteVariant } from "@/modules/Route/enums/RouteVariant";
 import type { RouteId } from "@/modules/Route/types/RouteId";
 import { JS } from "@/modules/JS/JS";
 import type { OrString } from "@/types/OrString";
-import { getRouterInstance } from "@/modules/Router/RouterInstance";
+import { getRouterInstance } from "@/index";
 import type { HttpResponseInterface } from "@/modules/HttpResponse/HttpResponseInterface";
 import { RouteAbstract } from "@/modules/Route/RouteAbstract";
 import type { RouteHandler } from "@/modules/Route/types/RouteHandler";

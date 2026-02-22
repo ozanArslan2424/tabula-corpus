@@ -1,3 +1,4 @@
+export * from "@/RouterInstance";
 export * from "@/modules";
 export type * from "@/types.d.ts";
 

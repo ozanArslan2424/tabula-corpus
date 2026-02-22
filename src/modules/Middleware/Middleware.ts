@@ -2,7 +2,7 @@ import type { MiddlewareInterface } from "@/modules/Middleware/MiddlewareInterfa
 import type { MiddlewareHandler } from "@/modules/Middleware/types/MiddlewareHandler";
 import type { MiddlewareOptions } from "@/modules/Middleware/types/MiddlewareOptions";
 import type { MiddlewareUseOn } from "@/modules/Middleware/types/MiddlewareUseOn";
-import { getRouterInstance } from "@/modules/Router/RouterInstance";
+import { getRouterInstance } from "@/index";
 
 /**
  * Simple middleware that runs before the Route "callback" parameters.

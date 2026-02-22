@@ -9,7 +9,7 @@ import { describe, expect, it } from "bun:test";
 import z from "zod";
 import { testServer } from "../utils/testServer";
 import { joinPathSegments } from "@/utils/joinPathSegments";
-import { getRouterInstance } from "@/modules/Router/RouterInstance";
+import { getRouterInstance } from "@/index";
 import { TEST_URL } from "../utils/TEST_URL";
 import type { StandardSchemaV1 } from "@/modules/Parser/types/StandardSchema";
 

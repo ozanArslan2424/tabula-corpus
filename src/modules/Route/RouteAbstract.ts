@@ -5,7 +5,7 @@ import { Method } from "@/modules/HttpRequest/enums/Method";
 import { joinPathSegments } from "@/utils/joinPathSegments";
 import { RouteVariant } from "@/modules/Route/enums/RouteVariant";
 import type { RouteHandler } from "@/modules/Route/types/RouteHandler";
-import { getRouterInstance } from "@/modules/Router/RouterInstance";
+import { getRouterInstance } from "@/index";
 import { Route } from "@/modules/Route/Route";
 
 export abstract class RouteAbstract<

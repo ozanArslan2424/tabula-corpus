@@ -1,5 +1,5 @@
 import { joinPathSegments } from "@/utils/joinPathSegments";
-import { getRouterInstance } from "@/modules/Router/RouterInstance";
+import { getRouterInstance } from "@/utils/RouterInstance";
 import { TEST_URL } from "./TEST_URL";
 
 export function reqMaker(prefix: string) {
