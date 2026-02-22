@@ -10,7 +10,7 @@ async function build() {
 	}
 
 	const defaultBuildConfig: BuildConfig = {
-		entrypoints: ["./src/index.ts", "./src/internal.ts"],
+		entrypoints: ["./src/index.ts"],
 		outdir: "./dist",
 		target: "bun",
 	};

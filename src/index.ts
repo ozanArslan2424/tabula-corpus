@@ -1,8 +1,7 @@
-import * as C from "@/exports";
-
-export * from "@/exports";
-
+export * from "@/modules";
 export type * from "@/types.d.ts";
+
+import * as C from "@/exports";
 
 export { C };
 
