@@ -1,4 +1,4 @@
-import type { ValueOf } from "@/utils/ValueOf";
+import type { ValueOf } from "@/types/ValueOf";
 
 export const RouteVariant = {
 	static: "static",

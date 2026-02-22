@@ -10,7 +10,7 @@ import { getRouterInstance } from "@/modules/Router/RouterInstance";
 
 /**
  * The object to define an endpoint. Can be instantiated with "new" or inside a controller
- * with {@link Controller.route}. The callback recieves the {@link RouteContext} and can
+ * with {@link ControllerAbstract.route}. The callback recieves the {@link Context} and can
  * return {@link HttpResponse} or any data. Route instantiation automatically registers
  * to the router.
  * */

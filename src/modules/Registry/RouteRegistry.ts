@@ -1,8 +1,8 @@
 import type { HttpRequestInterface } from "@/modules/HttpRequest/HttpRequestInterface";
 import type { RouteRegistryData } from "@/modules/Registry/types/RouteRegistryData";
 import { HttpError } from "@/modules/HttpError/HttpError";
-import { patternIsEqual } from "@/utils/patternIsEqual";
-import { textIsEqual } from "@/utils/textIsEqual";
+import { isRegexMatch } from "@/utils/isRegexMatch";
+import { strIsEqual } from "@/utils/strIsEqual";
 import type { AnyRoute } from "@/modules/Route/types/AnyRoute";
 
 export class RouteRegistry {
@@ -36,7 +36,7 @@ export class RouteRegistry {
 			// Check for pattern match for parameterized routes
 			if (endpoint.includes(":")) {
 				// Pattern match first
-				if (patternIsEqual(reqPath, data.pattern)) {
+				if (isRegexMatch(reqPath, data.pattern)) {
 					route = data;
 					break;
 				}
@@ -44,7 +44,7 @@ export class RouteRegistry {
 				// If pattern doesn't match check for missing last part param
 				if (
 					this.hasLastPartParam(endpoint) &&
-					textIsEqual(
+					strIsEqual(
 						endpoint.split("/").slice(0, -1).join("/"),
 						reqPath,
 						"lower",
@@ -55,7 +55,7 @@ export class RouteRegistry {
 				}
 
 				// Check for simple pathname match for static routes
-			} else if (textIsEqual(endpoint, reqPath)) {
+			} else if (strIsEqual(endpoint, reqPath)) {
 				// Found exact match
 				route = data;
 				break;
@@ -67,7 +67,7 @@ export class RouteRegistry {
 		}
 
 		// The endpoint exists but the method is not allowed
-		if (!textIsEqual(reqMethod, route.method, "upper")) {
+		if (!strIsEqual(reqMethod, route.method, "upper")) {
 			throw HttpError.methodNotAllowed();
 		}
 
@@ -88,7 +88,7 @@ export class RouteRegistry {
 
 			if (this.hasAnyParam(r.endpoint)) {
 				// Has params, pattern shouldn't match existing
-				if (patternIsEqual(r.endpoint, existing.pattern)) {
+				if (isRegexMatch(r.endpoint, existing.pattern)) {
 					console.error(
 						`⚠️  Collision: ${r.method} ${r.endpoint} clashes with ${existing.method} ${existing.endpoint}`,
 					);
@@ -97,7 +97,7 @@ export class RouteRegistry {
 				// Param route vs static route with same base
 				if (!this.hasAnyParam(existing.endpoint)) {
 					if (
-						textIsEqual(
+						strIsEqual(
 							this.removeLastParam(r.endpoint),
 							existing.endpoint,
 							"lower",
@@ -110,7 +110,7 @@ export class RouteRegistry {
 				}
 			} else {
 				// No params, endpoint string shouldn't already exist
-				if (textIsEqual(r.endpoint, existing.endpoint, "lower")) {
+				if (strIsEqual(r.endpoint, existing.endpoint, "lower")) {
 					console.error(
 						`⚠️  Collision: ${r.method} ${r.endpoint} already exists`,
 					);
@@ -119,7 +119,7 @@ export class RouteRegistry {
 				// No params but existing has last part param
 				if (this.hasLastPartParam(existing.endpoint)) {
 					if (
-						textIsEqual(
+						strIsEqual(
 							this.removeLastParam(r.endpoint),
 							this.removeLastParam(existing.endpoint),
 							"lower",

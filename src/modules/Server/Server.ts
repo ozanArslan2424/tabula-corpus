@@ -7,13 +7,9 @@ import type { ServeOptions } from "@/modules/Server/types/ServeOptions";
 import { getRuntime } from "@/modules/Runtime/getRuntime";
 
 /**
- * Server is the entrypoint to the app.
- * It takes the routes, controllers, middlewares, and HTML bundles for static pages.
- * A router instance must be passed to a {@link Server} to start listening.
- * At least one controller is required for middlewares to work.
- * You can pass a {@link DatabaseClientInterface} instance to connect and disconnect.
- * You can pass your {@link Cors} object.
- * */
+ * Server is the entrypoint to the app. It must be initialized before registering routes and middlewares.
+ * ".listen()" to start listening.
+ */
 
 export class Server extends ServerAbstract implements ServerInterface {
 	constructor() {

@@ -1,8 +1,8 @@
 import { CookiesAbstract } from "@/modules/Cookies/CookiesAbstract";
 import { RuntimeOptions } from "@/modules/Runtime/enums/RuntimeOptions";
 import type { CookiesInterface } from "@/modules/Cookies/CookiesInterface";
-import { CookiesUsingBun } from "@/modules/Cookies/CookiesUsingBun";
-import { CookiesUsingMap } from "@/modules/Cookies/CookiesUsingMap";
+import { CookiesUsingBun } from "@/modules/Cookies/variants/CookiesUsingBun";
+import { CookiesUsingMap } from "@/modules/Cookies/variants/CookiesUsingMap";
 import type { CookieOptions } from "@/modules/Cookies/types/CookieOptions";
 import type { CookiesInit } from "@/modules/Cookies/types/CookiesInit";
 import { getRuntime } from "@/modules/Runtime/getRuntime";
@@ -10,6 +10,16 @@ import { getRuntime } from "@/modules/Runtime/getRuntime";
 /** Simple cookie map/jar to collect and manipulate cookies. */
 
 export class Cookies extends CookiesAbstract implements CookiesInterface {
+	constructor(init?: CookiesInit) {
+		super();
+
+		this.instance = this.getInstance();
+
+		if (init) {
+			this.applyInit(init);
+		}
+	}
+
 	private instance: CookiesInterface;
 
 	private getInstance(): CookiesInterface {
@@ -23,20 +33,6 @@ export class Cookies extends CookiesAbstract implements CookiesInterface {
 			default:
 				return new CookiesUsingMap();
 		}
-	}
-
-	constructor(init?: CookiesInit) {
-		super();
-
-		this.instance = this.getInstance();
-
-		if (init) {
-			this.applyInit(init);
-		}
-	}
-
-	toSetCookieHeaders(): Array<string> {
-		return this.instance.toSetCookieHeaders();
 	}
 
 	set(opts: CookieOptions): void {
@@ -65,5 +61,9 @@ export class Cookies extends CookiesAbstract implements CookiesInterface {
 
 	keys(): Array<string> {
 		return this.instance.keys();
+	}
+
+	toSetCookieHeaders(): Array<string> {
+		return this.instance.toSetCookieHeaders();
 	}
 }

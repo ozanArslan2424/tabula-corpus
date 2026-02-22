@@ -1,8 +1,15 @@
 import { Status } from "@/modules/HttpResponse/enums/Status";
-import { HttpErrorAbstract } from "@/modules/HttpError/HttpErrorAbstract";
 import type { HttpErrorInterface } from "@/modules/HttpError/HttpErrorInterface";
 
-export class HttpError extends HttpErrorAbstract implements HttpErrorInterface {
+export class HttpError extends Error implements HttpErrorInterface {
+	constructor(
+		public override message: string,
+		public status: Status,
+		public data?: unknown,
+	) {
+		super(message);
+	}
+
 	static isStatusOf(err: unknown, status: Status): boolean {
 		if (err instanceof HttpError) {
 			return err.status === status;

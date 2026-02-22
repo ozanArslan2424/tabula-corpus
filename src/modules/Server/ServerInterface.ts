@@ -3,7 +3,7 @@ import type { HttpResponseInterface } from "@/modules/HttpResponse/HttpResponseI
 import type { ErrorHandler } from "@/modules/Server/types/ErrorHandler";
 import type { RequestHandler } from "@/modules/Server/types/RequestHandler";
 import type { ServeOptions } from "@/modules/Server/types/ServeOptions";
-import type { MaybePromise } from "@/utils/MaybePromise";
+import type { MaybePromise } from "@/types/MaybePromise";
 
 export interface ServerInterface {
 	serve(options: ServeOptions): void;

@@ -1,12 +1,9 @@
 import type { CookiesInterface } from "@/modules/Cookies/CookiesInterface";
-
 import type { CookieOptions } from "@/modules/Cookies/types/CookieOptions";
 import type { CookiesInit } from "@/modules/Cookies/types/CookiesInit";
-
-import { capitalize } from "@/utils/capitalize";
-import { getEntries } from "@/utils/getEntries";
-import { textAfterMark } from "@/utils/textAfterMark";
-import { textIsDefined } from "@/utils/textIsDefined";
+import { strCapitalize } from "@/utils/strCapitalize";
+import { strAfterMark } from "@/utils/strAfterMark";
+import { strIsDefined } from "@/utils/strIsDefined";
 
 export abstract class CookiesAbstract implements CookiesInterface {
 	abstract set(opts: CookieOptions): void;
@@ -29,14 +26,14 @@ export abstract class CookiesAbstract implements CookiesInterface {
 				this.set({ name, value });
 			}
 		} else {
-			for (const [name, value] of getEntries<string>(init)) {
+			for (const [name, value] of Object.entries(init)) {
 				this.set({ name, value });
 			}
 		}
 	}
 
 	decodeValue(cookieString: string): string | null {
-		const encodedValue = textAfterMark("=", cookieString);
+		const encodedValue = strAfterMark("=", cookieString);
 		if (!encodedValue) return null;
 		return decodeURIComponent(encodedValue);
 	}
@@ -44,11 +41,11 @@ export abstract class CookiesAbstract implements CookiesInterface {
 	createHeader(opts: CookieOptions): string {
 		let result = `${encodeURIComponent(opts.name)}=${encodeURIComponent(opts.value)}`;
 
-		if (textIsDefined(opts.domain)) {
+		if (strIsDefined(opts.domain)) {
 			result += `; Domain=${opts.domain}`;
 		}
 
-		if (textIsDefined(opts.path)) {
+		if (strIsDefined(opts.path)) {
 			result += `; Path=${opts.path}`;
 		} else {
 			result += `; Path=/`;
@@ -78,8 +75,8 @@ export abstract class CookiesAbstract implements CookiesInterface {
 			result += "; Partitioned";
 		}
 
-		if (textIsDefined(opts.sameSite)) {
-			result += `; SameSite=${capitalize(opts.sameSite)}`;
+		if (strIsDefined(opts.sameSite)) {
+			result += `; SameSite=${strCapitalize(opts.sameSite)}`;
 		} else {
 			result += `; SameSite=Lax`;
 		}

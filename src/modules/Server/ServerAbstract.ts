@@ -12,7 +12,7 @@ import type { CorsInterface } from "@/modules/Cors/CorsInterface";
 import type { ErrorHandler } from "@/modules/Server/types/ErrorHandler";
 import { Cors } from "@/modules/Cors/Cors";
 import type { CorsOptions } from "@/modules/Cors/types/CorsOptions";
-import type { MaybePromise } from "@/utils/MaybePromise";
+import type { MaybePromise } from "@/types/MaybePromise";
 import { Router } from "@/modules/Router/Router";
 import {
 	getRouterInstance,

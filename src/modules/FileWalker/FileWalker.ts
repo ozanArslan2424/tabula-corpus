@@ -1,8 +1,8 @@
 import { getRuntime } from "@/modules/Runtime/getRuntime";
 import { RuntimeOptions } from "@/modules/Runtime/enums/RuntimeOptions";
 import type { FileWalkerInterface } from "@/modules/FileWalker/FileWalkerInterface";
-import { FileWalkerUsingBun } from "@/modules/FileWalker/FileWalkerUsingBun";
-import { FileWalkerUsingNode } from "@/modules/FileWalker/FileWalkerUsingNode";
+import { FileWalkerUsingBun } from "@/modules/FileWalker/variants/FileWalkerUsingBun";
+import { FileWalkerUsingNode } from "@/modules/FileWalker/variants/FileWalkerUsingNode";
 import type { FileWalkerFile } from "@/modules/FileWalker/types/FileWalkerFile";
 
 export class FileWalker {

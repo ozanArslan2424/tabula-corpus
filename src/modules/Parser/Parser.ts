@@ -1,17 +1,15 @@
 import { Status } from "@/modules/HttpResponse/enums/Status";
 import type { HttpRequestInterface } from "@/modules/HttpRequest/HttpRequestInterface";
 import { HttpError } from "@/modules/HttpError/HttpError";
-import { appendEntry } from "@/utils/appendEntry";
-import { getProcessedValue } from "@/utils/getProcessedValue";
+import { objAppendEntry } from "@/utils/objAppendEntry";
 import type { HttpResponseInterface } from "@/modules/HttpResponse/HttpResponseInterface";
 import { CommonHeaders } from "@/modules/HttpHeaders/enums/CommonHeaders";
 import { Method } from "@/modules/HttpRequest/enums/Method";
-import { isFoundIn } from "@/utils/isFoundIn";
+import { arrIncludes } from "@/utils/arrIncludes";
 import type { StandardSchemaV1 } from "@/modules/Parser/types/StandardSchema";
 import { isObjectWith } from "@/utils/isObjectWith";
-import type { UnknownObject } from "@/utils/UnknownObject";
-import type { ReqRes } from "@/modules/Parser/types/ReqRes";
-import type { Validator } from "@/modules/Registry/types/SchemaData";
+import type { UnknownObject } from "@/types/UnknownObject";
+import type { Validator } from "@/modules/Registry/types/Validator";
 
 export class Parser {
 	// TODO: .pipe method doesn't infer correctly because arktype generics are hard
@@ -59,7 +57,7 @@ export class Parser {
 		const data: UnknownObject = {};
 
 		for (const [key, value] of url.searchParams ?? {}) {
-			data[key] = getProcessedValue(value);
+			data[key] = this.processString(value);
 		}
 
 		return await this.parse(data, validate);
@@ -130,7 +128,7 @@ export class Parser {
 
 			if (defPart.startsWith(":") && reqPart !== undefined) {
 				const key = defPart.slice(1);
-				const value = getProcessedValue(decodeURIComponent(reqPart));
+				const value = this.processString(decodeURIComponent(reqPart));
 				data[key] = value;
 			}
 		}
@@ -138,11 +136,13 @@ export class Parser {
 		return await this.parse(data, validate);
 	}
 
-	private static async getJsonBody(req: ReqRes): Promise<unknown> {
+	private static async getJsonBody(req: Request | Response): Promise<unknown> {
 		return await req.json();
 	}
 
-	private static async getFormUrlEncodedBody(req: ReqRes): Promise<unknown> {
+	private static async getFormUrlEncodedBody(
+		req: Request | Response,
+	): Promise<unknown> {
 		const text = await req.text();
 		if (!text || text.trim().length === 0) {
 			throw new SyntaxError("Body is empty");
@@ -152,13 +152,15 @@ export class Parser {
 		const body: Record<string, any> = {};
 
 		for (const [key, value] of params.entries()) {
-			appendEntry(body, key, getProcessedValue(value));
+			objAppendEntry(body, key, this.processString(value));
 		}
 
 		return body;
 	}
 
-	private static async getFormDataBody(req: ReqRes): Promise<unknown> {
+	private static async getFormDataBody(
+		req: Request | Response,
+	): Promise<unknown> {
 		const formData = await req.formData();
 		const entries = formData.entries() as IterableIterator<
 			[string, FormDataEntryValue]
@@ -170,21 +172,21 @@ export class Parser {
 			if (value instanceof File) {
 				body[key] = value;
 			} else {
-				appendEntry(body, key, getProcessedValue(value));
+				objAppendEntry(body, key, this.processString(value));
 			}
 		}
 
 		return body;
 	}
 
-	private static async getTextBody(req: ReqRes): Promise<unknown> {
+	private static async getTextBody(req: Request | Response): Promise<unknown> {
 		const contentLength = req.headers.get("content-length");
 		const length = contentLength ? parseInt(contentLength) : 0;
 
 		// 1MB threshold
 		if (length > 0 && length < 1024 * 1024) {
 			const text = await req.text();
-			return getProcessedValue(text);
+			return this.processString(text);
 		}
 
 		const buffer = await req.arrayBuffer();
@@ -195,17 +197,17 @@ export class Parser {
 		const decoder = new TextDecoder(charset || "utf-8");
 		const text = decoder.decode(buffer);
 
-		return getProcessedValue(text);
+		return this.processString(text);
 	}
 
-	static getNormalizedContentType(input: ReqRes): string {
+	static getNormalizedContentType(input: Request | Response): string {
 		const contentTypeHeader =
 			input.headers.get(CommonHeaders.ContentType) || "";
 
 		if (
 			"method" in input &&
 			typeof input.method === "string" &&
-			!isFoundIn(input.method.toUpperCase(), [
+			!arrIncludes(input.method.toUpperCase(), [
 				Method.POST,
 				Method.PUT,
 				Method.PATCH,
@@ -242,5 +244,20 @@ export class Parser {
 		}
 
 		return "unknown";
+	}
+
+	private static processString(value: string): string | boolean | number {
+		let processedValue: string | boolean | number = value;
+
+		if (/^-?\d+(\.\d+)?$/.test(value)) {
+			processedValue = Number(value);
+		} else if (
+			value.toLowerCase() === "true" ||
+			value.toLowerCase() === "false"
+		) {
+			processedValue = value.toLowerCase() === "true";
+		}
+
+		return processedValue;
 	}
 }

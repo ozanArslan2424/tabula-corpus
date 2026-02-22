@@ -1,9 +1,9 @@
 import type { Schema } from "@/exports";
 import type { AnyRouteModel } from "@/modules/Parser/types/AnyRouteModel";
 import type { ModelRegistryData } from "@/modules/Registry/types/ModelRegistryData";
-import type { Validator } from "@/modules/Registry/types/SchemaData";
+import type { Validator } from "@/modules/Registry/types/Validator";
 import type { RouteId } from "@/modules/Route/types/RouteId";
-import { strRemoveWhitespace } from "@/utils/strReplaceWhitespace";
+import { strRemoveWhitespace } from "@/utils/strRemoveWhitespace";
 
 export class ModelRegistry {
 	readonly data = new Map<RouteId, ModelRegistryData>();

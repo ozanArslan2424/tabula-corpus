@@ -1,37 +1,64 @@
-import { HttpRequest } from "@/modules/HttpRequest/HttpRequest";
 import type { HttpRequestInterface } from "@/modules/HttpRequest/HttpRequestInterface";
 import { Parser } from "@/modules/Parser/Parser";
-import { ContextAbstract } from "@/modules/Context/ContextAbstract";
 import type { ContextInterface } from "@/modules/Context/ContextInterface";
 import type { ModelRegistryData } from "@/modules/Registry/types/ModelRegistryData";
+import type { CookiesInterface } from "@/exports";
+import type { ContextDataInterface } from "@/types.d.ts";
+import type { HttpHeadersInterface } from "@/modules/HttpHeaders/HttpHeadersInterface";
+import { HttpResponse } from "@/modules/HttpResponse/HttpResponse";
+import type { HttpResponseInterface } from "@/modules/HttpResponse/HttpResponseInterface";
 
 /**
  * The context object used in Route "callback" parameter.
- * Takes 5 generics:
- * D = Data passed through a {@link Middleware}
+ * Takes 4 generics:
  * R = The return type
  * B = Request body
  * S = Request URL search params
  * P = Request URL params
- * The types are resolved using Route "schemas" parameter except D
- * which you may want to pass if you have middleware data.
+ * The types are resolved using Route "model" parameter.
  *
  * Contains:
- * req = {@link Request} instance
- * url = Request URL
- * body = Async function to get the parsed Request body
+ * req = {@link HTTPRequest} instance
+ * url = Request {@link URL} object
+ * headers = Request {@link HTTPHeaders}
+ * cookies = Request {@link Cookies}
+ * body = Parsed Request body
  * search = Parsed Request URL search params
  * params = Parsed Request URL params
- * status = To set the Response status
- * statusText = To set the Response statusText
- * headers = To set the Response {@link Headers}
- * cookies = To set the Response {@link Cookies}
+ * res = To set the {@link HTTPResponse} data
  * */
 
-export class Context<R = unknown, B = unknown, S = unknown, P = unknown>
-	extends ContextAbstract<R, B, S, P>
-	implements ContextInterface<R, B, S, P>
-{
+export class Context<
+	R = unknown,
+	B = unknown,
+	S = unknown,
+	P = unknown,
+> implements ContextInterface<R, B, S, P> {
+	constructor(
+		readonly req: HttpRequestInterface,
+		body: B,
+		search: S,
+		params: P,
+		res?: HttpResponseInterface<R>,
+	) {
+		this.url = req.urlObject;
+		this.headers = req.headers;
+		this.cookies = req.cookies;
+		this.body = body;
+		this.search = search;
+		this.params = params;
+		this.res = res ?? new HttpResponse<R>();
+	}
+
+	url: URL;
+	headers: HttpHeadersInterface;
+	cookies: CookiesInterface;
+	body: B;
+	search: S;
+	params: P;
+	res: HttpResponseInterface<R>;
+	data: ContextDataInterface = {};
+
 	static makeFromRequest(req: HttpRequestInterface): ContextInterface {
 		return new Context(req, {}, {}, {});
 	}

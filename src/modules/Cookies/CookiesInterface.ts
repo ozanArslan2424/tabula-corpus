@@ -1,5 +1,4 @@
 import type { CookieOptions } from "@/modules/Cookies/types/CookieOptions";
-import type { CookiesInit } from "@/modules/Cookies/types/CookiesInit";
 
 export interface CookiesInterface {
 	set(opts: CookieOptions): void;
@@ -12,5 +11,4 @@ export interface CookiesInterface {
 	decodeValue(cookieString: string): string | null;
 	createHeader(opts: CookieOptions): string;
 	toSetCookieHeaders(): string[];
-	applyInit(init: CookiesInit): void;
 }

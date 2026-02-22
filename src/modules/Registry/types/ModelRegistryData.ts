@@ -1,4 +1,4 @@
-import type { Validator } from "@/modules/Registry/types/SchemaData";
+import type { Validator } from "@/modules/Registry/types/Validator";
 
 export type ModelRegistryData<
 	R = unknown,

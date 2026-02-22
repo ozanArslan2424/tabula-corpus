@@ -3,7 +3,7 @@ import {
 	getRouterInstance,
 	setRouterInstance,
 } from "@/modules/Router/RouterInstance";
-import type { MaybePromise } from "@/utils/MaybePromise";
+import type { MaybePromise } from "@/types/MaybePromise";
 
 export async function useTemporaryRouter(cb: () => MaybePromise<void>) {
 	const originalRouter = getRouterInstance();

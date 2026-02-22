@@ -1,24 +1,7 @@
 import type { RouteModel } from "@/modules/Parser/types/RouteModel";
-import type { Schema, InferSchema } from "@/modules/Parser/types/Schema";
-import type { Prettify } from "@/utils/Prettify";
-
-// // prettier-ignore
-// export type InferModel<T extends Record<string, any>> = {
-// 	[K in keyof T]: T[K] extends RouteModel<any, any, any, any>
-// 	?
-// 	RemoveNever<{
-// 		body: T[K]["body"] extends Schema ? InferSchema<T[K]["body"]> : never;
-// 		response: T[K]["response"] extends Schema ? InferSchema<T[K]["response"]> : never;
-// 		params: T[K]["params"] extends Schema ? InferSchema<T[K]["params"]> : never;
-// 		query: T[K]["query"] extends Schema ? InferSchema<T[K]["query"]> : never;
-// 	}>
-// 	:
-// 	T[K] extends Schema ? InferSchema<T[K]> : never;
-// }
-//
-// export type RemoveNever<T> = {
-// 	[K in keyof T as T[K] extends never ? never : K]: T[K];
-// };
+import type { Schema } from "@/modules/Parser/types/Schema";
+import type { InferSchema } from "@/modules/Parser/types/InferSchema";
+import type { Prettify } from "@/types/Prettify";
 
 /** If you prefer to put all schemas into a single object, this will be helpful */
 export type InferModel<T extends Record<string, any>> = {
