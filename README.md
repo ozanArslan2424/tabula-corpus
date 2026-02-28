@@ -18,13 +18,13 @@ npm install @ozanarslan/corpus
 Create a simple server:
 
 ```typescript
-import { Server, Route, Config } from "@ozanarslan/corpus";
+import C from "@ozanarslan/corpus";
 
 // Initialize server
-const server = new Server();
+const server = new C.Server();
 
 // Add a route
-new Route("/health", () => "ok");
+new C.Route("/health", () => "ok");
 
 // Start listening
 server.listen(3000);
