@@ -3,6 +3,7 @@ import { Router } from "@/Router/Router";
 import { ServerAbstract } from "@/Server/ServerAbstract";
 import { ServerUsingBun } from "@/Server/ServerUsingBun";
 import type { ServeOptions } from "@/Server/types/ServeOptions";
+import { Config } from "@/Config/Config";
 
 /**
  * Server is the entrypoint to the app. It must be initialized before registering routes and middlewares.
@@ -25,6 +26,9 @@ export class Server extends ServerAbstract {
 	async close(): Promise<void> {
 		await this.handleBeforeClose?.();
 		console.log("Closing...");
-		return await this.instance.close();
+		await this.instance.close();
+		if (Config.nodeEnv !== "test") {
+			process.exit(0);
+		}
 	}
 }
