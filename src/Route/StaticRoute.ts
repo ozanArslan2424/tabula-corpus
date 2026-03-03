@@ -2,7 +2,6 @@ import { Method } from "@/Request/enums/Method";
 import { RouteVariant } from "@/Route/enums/RouteVariant";
 import { FileWalker } from "@/FileWalker/FileWalker";
 import { HttpError } from "@/Error/HttpError";
-import { JS } from "@/JS";
 import { RouteAbstract } from "@/Route/RouteAbstract";
 import type { RouteHandler } from "@/Route/types/RouteHandler";
 import type { RouteId } from "@/Route/types/RouteId";
@@ -71,9 +70,6 @@ export class StaticRoute<
 			case "js":
 				content = await this.handleJs();
 				break;
-			case "ts":
-				content = await this.handleTs();
-				break;
 			default:
 				content = await this.handleFile();
 				break;
@@ -91,10 +87,6 @@ export class StaticRoute<
 
 	private get extension(): string {
 		return this.filePath.split(".").pop() || "txt";
-	}
-
-	private get fileName(): string {
-		return this.filePath.split("/").pop() ?? "unknown.ts";
 	}
 
 	private async getContent(): Promise<string> {
@@ -142,12 +134,6 @@ export class StaticRoute<
 
 	private async handleJs() {
 		return await this.getContent();
-	}
-
-	private async handleTs() {
-		const fileName = this.fileName;
-		const content = await this.getContent();
-		return await JS.transpile(fileName, content);
 	}
 
 	// TODO: Compress images and other binary files
