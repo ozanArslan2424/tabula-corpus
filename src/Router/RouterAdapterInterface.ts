@@ -1,13 +1,10 @@
 import type { RouterRouteData } from "@/Router/types/RouterRouteData";
 
 export interface RouterAdapterInterface {
-	add(method: string, path: string, store: RouterRouteData): void;
+	add(data: RouterRouteData): void;
 	find(
 		method: string,
 		path: string,
-	): {
-		store: RouterRouteData;
-		params?: Record<string, unknown>;
-	} | null;
-	getRouteList(): Array<[string, string]>;
+	): { route: RouterRouteData; params?: Record<string, unknown> } | null;
+	list(): Array<[string, string]>;
 }

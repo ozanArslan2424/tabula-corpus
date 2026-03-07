@@ -1,4 +1,4 @@
-import { getRouterInstance } from "@/index";
+import { _router } from "@/index";
 import type { MiddlewareHandler } from "@/Middleware/types/MiddlewareHandler";
 import type { MiddlewareOptions } from "@/Middleware/types/MiddlewareOptions";
 import type { MiddlewareUseOn } from "@/Middleware/types/MiddlewareUseOn";
@@ -12,7 +12,7 @@ export class Middleware {
 	constructor(opts: MiddlewareOptions) {
 		this.useOn = opts.useOn;
 		this.handler = opts.handler;
-		getRouterInstance().addMiddleware(opts);
+		_router.get().addMiddleware(opts);
 	}
 
 	useOn: MiddlewareUseOn;

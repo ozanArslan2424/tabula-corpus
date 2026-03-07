@@ -1,33 +1,31 @@
-import C from "@/index";
+import C, { _globalPrefix } from "@/index";
 import { describe, expect, it } from "bun:test";
 import { createTestServer } from "./utils/createTestServer";
 import { req } from "./utils/req";
 
-describe("C.Server", () => {
+const s = createTestServer();
+
+describe("C.Server USING BUN", () => {
 	// ─── handle() - routing ───────────────────────────────────────
 
 	it("HANDLE - RETURNS 200 FOR REGISTERED ROUTE", async () => {
-		const s = createTestServer();
 		new C.Route("/srv-200", () => "ok");
 		const res = await s.handle(req("/srv-200"));
 		expect(res.status).toBe(200);
 	});
 
 	it("HANDLE - RETURNS 404 FOR UNREGISTERED ROUTE", async () => {
-		const s = createTestServer();
 		const res = await s.handle(req("/srv-does-not-exist"));
 		expect(res.status).toBe(404);
 	});
 
 	it("HANDLE - RETURNS 405 FOR WRONG METHOD", async () => {
-		const s = createTestServer();
 		new C.Route({ method: C.Method.POST, path: "/srv-405" }, () => "ok");
 		const res = await s.handle(req("/srv-405", { method: "GET" }));
 		expect(res.status).toBe(405);
 	});
 
 	it("HANDLE - RETURNS HANDLER RESULT AS BODY", async () => {
-		const s = createTestServer();
 		new C.Route("/srv-body", () => ({ hello: "world" }));
 		const res = await s.handle(req("/srv-body"));
 		const data = await C.Parser.getBody<{ hello: string }>(res);
@@ -37,7 +35,6 @@ describe("C.Server", () => {
 	// ─── preflight ────────────────────────────────────────────────
 
 	it("PREFLIGHT - RETURNS 200 WITH DEPARTED BODY", async () => {
-		const s = createTestServer();
 		const res = await s.handle(
 			req("/srv-preflight", {
 				method: "OPTIONS",
@@ -52,7 +49,6 @@ describe("C.Server", () => {
 	// ─── setOnError ───────────────────────────────────────────────
 
 	it("SET ON ERROR - CUSTOM HANDLER IS CALLED ON ERROR", async () => {
-		const s = createTestServer();
 		s.setOnError(async () => {
 			return new C.Response(
 				{ error: true, message: "custom error" },
@@ -66,10 +62,11 @@ describe("C.Server", () => {
 		expect(res.status).toBe(500);
 		const data = await C.Parser.getBody<{ message: string }>(res);
 		expect(data.message).toBe("custom error");
+
+		s.setOnError(s.defaultErrorHandler);
 	});
 
 	it("SET ON ERROR - DEFAULT HANDLER RETURNS 500", async () => {
-		const s = createTestServer();
 		new C.Route("/srv-error-default", () => {
 			throw new Error("unexpected");
 		});
@@ -78,7 +75,6 @@ describe("C.Server", () => {
 	});
 
 	it("SET ON ERROR - HTTP ERROR IS HANDLED BY DEFAULT HANDLER", async () => {
-		const s = createTestServer();
 		new C.Route("/srv-httperror", () => {
 			throw C.Error.badRequest("bad input");
 		});
@@ -91,7 +87,6 @@ describe("C.Server", () => {
 	// ─── setOnNotFound ────────────────────────────────────────────
 
 	it("SET ON NOT FOUND - CUSTOM HANDLER IS CALLED", async () => {
-		const s = createTestServer();
 		s.setOnNotFound(async () => {
 			return new C.Response(
 				{ error: true, message: "custom not found" },
@@ -102,10 +97,11 @@ describe("C.Server", () => {
 		expect(res.status).toBe(404);
 		const data = await C.Parser.getBody<{ message: string }>(res);
 		expect(data.message).toBe("custom not found");
+
+		s.setOnNotFound(s.defaultNotFoundHandler);
 	});
 
 	it("SET ON NOT FOUND - DEFAULT HANDLER INCLUDES METHOD AND URL", async () => {
-		const s = createTestServer();
 		const res = await s.handle(req("/srv-default-404"));
 		expect(res.status).toBe(404);
 		const data = await C.Parser.getBody<{ message: string }>(res);
@@ -116,7 +112,6 @@ describe("C.Server", () => {
 	// ─── setOnAfterResponse ───────────────────────────────────────
 
 	it("SET ON AFTER RESPONSE - CAN MODIFY RESPONSE", async () => {
-		const s = createTestServer();
 		s.setOnAfterResponse(async (res) => {
 			res.headers.set("x-after", "applied");
 			return res;
@@ -124,32 +119,30 @@ describe("C.Server", () => {
 		new C.Route("/srv-after", () => "ok");
 		const res = await s.handle(req("/srv-after"));
 		expect(res.headers.get("x-after")).toBe("applied");
+		s.setOnAfterResponse(s.defaultOnAfterResponse);
 	});
 
 	it("SET ON AFTER RESPONSE - IS CALLED EVEN ON 404", async () => {
-		const s = createTestServer();
 		s.setOnAfterResponse(async (res) => {
 			res.headers.set("x-after-404", "yes");
 			return res;
 		});
 		const res = await s.handle(req("/srv-after-404-missing"));
 		expect(res.headers.get("x-after-404")).toBe("yes");
+		s.setOnAfterResponse(s.defaultOnAfterResponse);
 	});
 
 	// ─── setGlobalPrefix ──────────────────────────────────────────
 
 	it("SET GLOBAL PREFIX - ROUTE IS ACCESSIBLE UNDER PREFIX", async () => {
-		const s = createTestServer();
 		s.setGlobalPrefix("/api");
 		new C.Route("/srv-prefixed", () => "prefixed");
 		const res = await s.handle(req("/srv-prefixed"));
 		expect(res.status).toBe(200);
-		// reset prefix so it doesn't bleed into other tests
 		s.setGlobalPrefix("");
 	});
 
 	it("SET GLOBAL PREFIX - ROUTE IS NOT ACCESSIBLE WITHOUT PREFIX", async () => {
-		const s = createTestServer();
 		s.setGlobalPrefix("/api");
 		new C.Route("/srv-no-prefix", () => "ok");
 		const res = await s.handle(
@@ -162,7 +155,6 @@ describe("C.Server", () => {
 	// ─── CORS integration ─────────────────────────────────────────
 
 	it("CORS - SETS ORIGIN HEADER ON ALLOWED ORIGIN", async () => {
-		const s = createTestServer();
 		s.setCors({ allowedOrigins: ["https://example.com"] });
 		new C.Route("/srv-cors", () => "ok");
 		const res = await s.handle(
@@ -171,20 +163,20 @@ describe("C.Server", () => {
 		expect(res.headers.get("Access-Control-Allow-Origin")).toBe(
 			"https://example.com",
 		);
+		s.setCors(undefined);
 	});
 
 	it("CORS - DOES NOT SET ORIGIN HEADER ON DISALLOWED ORIGIN", async () => {
-		const s = createTestServer();
 		s.setCors({ allowedOrigins: ["https://example.com"] });
 		new C.Route("/srv-cors-blocked", () => "ok");
 		const res = await s.handle(
 			req("/srv-cors-blocked", { headers: { origin: "https://evil.com" } }),
 		);
 		expect(res.headers.get("Access-Control-Allow-Origin")).toBeNull();
+		s.setCors(undefined);
 	});
 
 	it("CORS - IS NOT APPLIED WHEN NOT SET", async () => {
-		const s = createTestServer();
 		new C.Route("/srv-no-cors", () => "ok");
 		const res = await s.handle(
 			req("/srv-no-cors", { headers: { origin: "https://example.com" } }),

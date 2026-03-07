@@ -1,24 +1,17 @@
-import { setRouterInstance } from "@/index";
 import { Config } from "@/Config/Config";
-import { Router } from "@/Router/Router";
 import { Method } from "@/Request/enums/Method";
 import { ServerAbstract } from "@/Server/ServerAbstract";
-import type { ServeOptions } from "@/Server/types/ServeOptions";
+import type { ServeArgs } from "@/Server/types/ServeArgs";
 import type { ServerAppUsingNode } from "@/Server/types/ServerAppUsingNode";
 import http from "node:http";
 
 export class ServerUsingNode extends ServerAbstract {
 	private app: ServerAppUsingNode | undefined;
 
-	constructor() {
-		super();
-		setRouterInstance(new Router());
-	}
-
-	serve(options: ServeOptions): void {
-		const app = this.createApp(options);
+	serve(args: ServeArgs): void {
+		const app = this.createApp(args);
 		this.app = app;
-		app.listen(options.port, options.hostname);
+		app.listen(args.port, args.hostname);
 	}
 
 	async close(): Promise<void> {
@@ -34,7 +27,7 @@ export class ServerUsingNode extends ServerAbstract {
 		}
 	}
 
-	private createApp(options: ServeOptions): ServerAppUsingNode {
+	private createApp(options: ServeArgs): ServerAppUsingNode {
 		return http.createServer(async (incomingMessage, serverResponse) => {
 			const body = await this.getBody(incomingMessage);
 			const url = this.getUrl(incomingMessage);

@@ -166,7 +166,7 @@ export class Router {
 
 		for (const [endpoint, data] of this.routes.entries()) {
 			// Check for pattern match for parameterized routes
-			if (endpoint.includes(":")) {
+			if (this.hasAnyParam(endpoint)) {
 				// Pattern match first
 				if (isRegexMatch(reqPath, data.pattern)) {
 					route = data;
@@ -176,11 +176,7 @@ export class Router {
 				// If pattern doesn't match check for missing last part param
 				if (
 					this.hasLastPartParam(endpoint) &&
-					strIsEqual(
-						endpoint.split("/").slice(0, -1).join("/"),
-						reqPath,
-						"lower",
-					)
+					strIsEqual(this.removeLastParam(endpoint), reqPath, "lower")
 				) {
 					route = data;
 					break;

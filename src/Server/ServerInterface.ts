@@ -2,12 +2,11 @@ import type { CorsOptions } from "@/Cors/types/CorsOptions";
 import type { ErrorHandler } from "@/Server/types/ErrorHandler";
 import type { MaybePromise } from "@/utils/types/MaybePromise";
 import type { RequestHandler } from "@/Server/types/RequestHandler";
-import type { ServeOptions } from "@/Server/types/ServeOptions";
-import { _globalPrefixEnvKey } from "@/Config/constants/_globalPrefixEnvKey";
+import type { ServeArgs } from "@/Server/types/ServeArgs";
 import type { AfterResponseHandler } from "@/Server/types/AfterResponseHandler";
 
 export interface ServerInterface {
-	serve(options: ServeOptions): void;
+	serve(options: ServeArgs): void;
 
 	close(): Promise<void>;
 
@@ -49,8 +48,8 @@ export interface ServerInterface {
 	setOnAfterResponse(handler: AfterResponseHandler): void;
 
 	listen(
-		port: ServeOptions["port"],
-		hostname: ServeOptions["hostname"],
+		port: ServeArgs["port"],
+		hostname: ServeArgs["hostname"],
 	): Promise<void>;
 
 	handle(request: Request): Promise<Response>;

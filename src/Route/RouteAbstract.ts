@@ -1,14 +1,13 @@
 import { Method } from "@/Request/enums/Method";
 import { RouteVariant } from "@/Route/enums/RouteVariant";
-import { Config } from "@/Config/Config";
 import { Route } from "@/Route/Route";
 import type { RouteDefinition } from "@/Route/types/RouteDefinition";
 import type { RouteHandler } from "@/Route/types/RouteHandler";
 import type { RouteId } from "@/Route/types/RouteId";
 import type { RouteModel } from "@/Model/types/RouteModel";
 import { joinPathSegments } from "@/utils/joinPathSegments";
-import { _globalPrefixEnvKey } from "@/Config/constants/_globalPrefixEnvKey";
 import type { OrString } from "@/utils/types/OrString";
+import { _globalPrefix } from "@/index";
 
 export abstract class RouteAbstract<
 	Path extends string = string,
@@ -32,10 +31,7 @@ export abstract class RouteAbstract<
 		const endpoint =
 			typeof definition === "string" ? definition : definition.path;
 		if (variant === RouteVariant.dynamic) {
-			return joinPathSegments(
-				Config.get(_globalPrefixEnvKey, { fallback: "" }),
-				endpoint,
-			);
+			return joinPathSegments(_globalPrefix.get(), endpoint);
 		}
 		return endpoint;
 	}

@@ -1,20 +1,13 @@
-import { setRouterInstance } from "@/index";
 import { Config } from "@/Config/Config";
-import { Router } from "@/Router/Router";
 import { ServerAbstract } from "@/Server/ServerAbstract";
-import type { ServeOptions } from "@/Server/types/ServeOptions";
+import type { ServeArgs } from "@/Server/types/ServeArgs";
 import type { ServerAppUsingBun } from "@/Server/types/ServerAppUsingBun";
 
 export class ServerUsingBun extends ServerAbstract {
 	private app: ServerAppUsingBun | undefined;
 
-	constructor() {
-		super();
-		setRouterInstance(new Router());
-	}
-
-	serve(options: ServeOptions): void {
-		this.app = this.createApp(options);
+	serve(args: ServeArgs): void {
+		this.app = this.createApp(args);
 	}
 
 	async close(): Promise<void> {
@@ -28,7 +21,7 @@ export class ServerUsingBun extends ServerAbstract {
 		}
 	}
 
-	private createApp(options: ServeOptions): ServerAppUsingBun {
+	private createApp(options: ServeArgs): ServerAppUsingBun {
 		return Bun.serve({
 			port: options.port,
 			hostname: options.hostname,

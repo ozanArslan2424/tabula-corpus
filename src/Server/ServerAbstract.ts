@@ -1,6 +1,5 @@
 import { Status } from "@/Response/enums/Status";
-import { getRouterInstance } from "@/index";
-import { Config } from "@/Config/Config";
+import { _globalPrefix, _router } from "@/index";
 import { Cors } from "@/Cors/Cors";
 import { HttpError } from "@/Error/HttpError";
 import { HttpRequest } from "@/Request/HttpRequest";
@@ -9,52 +8,32 @@ import type { CorsOptions } from "@/Cors/types/CorsOptions";
 import type { ErrorHandler } from "@/Server/types/ErrorHandler";
 import type { MaybePromise } from "@/utils/types/MaybePromise";
 import type { RequestHandler } from "@/Server/types/RequestHandler";
-import type { ServeOptions } from "@/Server/types/ServeOptions";
-import { _globalPrefixEnvKey } from "@/Config/constants/_globalPrefixEnvKey";
+import type { ServeArgs } from "@/Server/types/ServeArgs";
 import type { ServerInterface } from "@/Server/ServerInterface";
 import type { AfterResponseHandler } from "@/Server/types/AfterResponseHandler";
+import { Router } from "@/Router/Router";
+import type { Func } from "@/utils/types/Func";
+import type { ServerOptions } from "@/Server/types/ServerOptions";
 
 export abstract class ServerAbstract implements ServerInterface {
-	abstract serve(options: ServeOptions): void;
+	abstract serve(options: ServeArgs): void;
 	abstract close(): Promise<void>;
 
-	protected cors: Cors | undefined;
+	constructor(opts?: ServerOptions) {
+		_router.set(new Router(opts?.adapter));
+	}
 
 	get routes(): Array<[string, string]> {
-		return getRouterInstance().getRouteList();
+		return _router.get().getRouteList();
 	}
 
 	setGlobalPrefix(value: string): void {
-		Config.set(_globalPrefixEnvKey, value);
-	}
-
-	setCors(cors: CorsOptions): void {
-		this.cors = new Cors(cors);
-	}
-
-	setOnError(handler: ErrorHandler): void {
-		this.handleError = handler;
-	}
-
-	setOnNotFound(handler: RequestHandler): void {
-		this.handleNotFound = handler;
-	}
-
-	setOnBeforeListen(handler: () => MaybePromise<void>): void {
-		this.handleBeforeListen = handler;
-	}
-
-	setOnBeforeClose(handler: () => MaybePromise<void>): void {
-		this.handleBeforeClose = handler;
-	}
-
-	setOnAfterResponse(handler: AfterResponseHandler): void {
-		this.handleAfterResponse = handler;
+		_globalPrefix.set(value);
 	}
 
 	async listen(
-		port: ServeOptions["port"],
-		hostname: ServeOptions["hostname"] = "0.0.0.0",
+		port: ServeArgs["port"],
+		hostname: ServeArgs["hostname"] = "0.0.0.0",
 	): Promise<void> {
 		try {
 			process.on("SIGINT", () => this.close());
@@ -92,7 +71,7 @@ export abstract class ServerAbstract implements ServerInterface {
 				return new HttpResponse("Departed");
 			}
 
-			const handler = getRouterInstance().getRouteHandler(req);
+			const handler = _router.get().findRouteHandler(req);
 			return await handler();
 		} catch (err) {
 			if (err instanceof HttpError) {
@@ -108,11 +87,34 @@ export abstract class ServerAbstract implements ServerInterface {
 		}
 	}
 
-	protected handleBeforeListen: (() => MaybePromise<void>) | undefined;
-	protected handleBeforeClose: (() => MaybePromise<void>) | undefined;
-	protected handleAfterResponse: AfterResponseHandler;
+	protected cors: Cors | undefined;
+	setCors(opts: CorsOptions | undefined): void {
+		this.cors = opts ? new Cors(opts) : undefined;
+	}
 
-	protected handleError: ErrorHandler = async (err) => {
+	protected handleBeforeListen: Func<[], MaybePromise<void>> | undefined;
+	setOnBeforeListen(handler: Func<[], MaybePromise<void>> | undefined): void {
+		this.handleBeforeListen = handler;
+	}
+	defaultOnBeforeListen: Func<[], MaybePromise<void>> | undefined = undefined;
+
+	protected handleBeforeClose: Func<[], MaybePromise<void>> | undefined;
+	setOnBeforeClose(handler: () => MaybePromise<void>): void {
+		this.handleBeforeClose = handler;
+	}
+	defaultOnBeforeClose: Func<[], MaybePromise<void>> | undefined = undefined;
+
+	protected handleAfterResponse: AfterResponseHandler | undefined;
+	setOnAfterResponse(handler: AfterResponseHandler | undefined): void {
+		this.handleAfterResponse = handler;
+	}
+	defaultOnAfterResponse: AfterResponseHandler | undefined = undefined;
+
+	protected handleError: ErrorHandler = (err) => this.defaultErrorHandler(err);
+	setOnError(handler: ErrorHandler): void {
+		this.handleError = handler;
+	}
+	defaultErrorHandler: ErrorHandler = (err) => {
 		if (!(err instanceof Error)) {
 			return new HttpResponse(
 				{ error: err, message: "Unknown" },
@@ -129,14 +131,21 @@ export abstract class ServerAbstract implements ServerInterface {
 		);
 	};
 
-	protected handleNotFound: RequestHandler = async (req) => {
+	protected handleNotFound: RequestHandler = (req) =>
+		this.defaultNotFoundHandler(req);
+	setOnNotFound(handler: RequestHandler): void {
+		this.handleNotFound = handler;
+	}
+	defaultNotFoundHandler: RequestHandler = (req) => {
 		return new HttpResponse(
 			{ error: true, message: `${req.method} on ${req.url} does not exist.` },
 			{ status: Status.NOT_FOUND },
 		);
 	};
 
-	protected handleMethodNotAllowed: RequestHandler = async (req) => {
+	protected handleMethodNotAllowed: RequestHandler = (req) =>
+		this.defaultMethodNotFoundHandler(req);
+	defaultMethodNotFoundHandler: RequestHandler = (req) => {
 		return new HttpResponse(
 			{ error: `${req.method} does not exist.` },
 			{ status: Status.METHOD_NOT_ALLOWED },

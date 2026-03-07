@@ -14,6 +14,7 @@ import { Route } from "@/Route/Route";
 import type { Middleware } from "@/Middleware/Middleware";
 import type { RouterAdapterInterface } from "@/Router/RouterAdapterInterface";
 import { CorpusAdapter } from "@/Router/adapters/CorpusAdapter";
+import { LazyMap } from "@/Store/LazyMap";
 
 export class Router {
 	constructor(adapter?: RouterAdapterInterface) {
@@ -22,75 +23,30 @@ export class Router {
 
 	private _adapter: RouterAdapterInterface;
 	private cache = new WeakMap<HttpRequest, Func<[], Promise<HttpResponse>>>();
-	private internFuncMap = new Map<string, Func>();
-
-	// RouteId -> ModelRegistryData
-	private _models: Map<RouteId, RouterModelData> | undefined;
-	private get models(): Map<RouteId, RouterModelData> {
-		if (!this._models) {
-			this._models = new Map<RouteId, RouterModelData>();
-		}
-		return this._models;
-	}
-
+	private internFuncMap = new LazyMap<string, Func>();
 	// RouteId | "*" -> RouterMiddlewareData
-	private _middlewares: Map<string, RouterMiddlewareData> | undefined;
-	private get middlewares(): Map<string, RouterMiddlewareData> {
-		if (!this._middlewares) {
-			this._middlewares = new Map<string, RouterMiddlewareData>();
+	private middlewares = new LazyMap<string, RouterMiddlewareData>();
+	// RouteId -> ModelRegistryData
+	private models = new LazyMap<RouteId, RouterModelData>();
+
+	addModel(routeId: RouteId, model: AnyRouteModel): void {
+		const entry: RouterModelData = {};
+		for (const k of Object.keys(model)) {
+			const key = k as keyof RouterModelData;
+			const schema = model[key];
+			if (!schema) continue;
+			const handler = schema["~standard"].validate;
+			entry[key] = this.intern(
+				handler,
+				"model",
+				strRemoveWhitespace(JSON.stringify(schema)),
+			);
 		}
-		return this._middlewares;
+		this.models.set(routeId, entry);
 	}
 
-	globalPrefix: string = "";
-
-	setGlobalPrefix(value: string) {
-		this.globalPrefix = value;
-	}
-
-	addRoute(r: AnyRoute): void {
-		const handler = this.intern(r.handler, "route", r.id);
-		this._adapter.add(r.method, r.endpoint, {
-			id: r.id,
-			endpoint: r.endpoint,
-			method: r.method,
-			handler,
-			pattern: r.pattern,
-		});
-	}
-
-	getRouteList(): Array<[string, string]> {
-		return this._adapter.getRouteList();
-	}
-
-	getRouteHandler(req: HttpRequest): Func<[], Promise<HttpResponse>> {
-		const cached = this.cache.get(req);
-		if (cached) return cached;
-
-		const result = this._adapter.find(req.method, req.urlObject.pathname);
-		if (!result) throw HttpError.notFound();
-
-		const route = result.store;
-		const ctx = Context.makeFromRequest(req);
-		const middleware = this.findMiddleware(route.id);
-		const model = this.findModel(route.id);
-
-		const handler = async () => {
-			await middleware?.(ctx);
-			await Context.appendParsedData(ctx, req, route.endpoint, model);
-			const result = await route.handler(ctx);
-			return result instanceof HttpResponse
-				? result
-				: new HttpResponse(result, {
-						cookies: ctx.res.cookies,
-						headers: ctx.res.headers,
-						status: ctx.res.status,
-						statusText: ctx.res.statusText,
-					});
-		};
-
-		this.cache.set(req, handler);
-		return handler;
+	private findModel(routeId: RouteId): RouterModelData | undefined {
+		return this.models.get(routeId);
 	}
 
 	addMiddleware(m: Middleware): void {
@@ -126,28 +82,53 @@ export class Router {
 		}
 	}
 
-	addModel(routeId: RouteId, model: AnyRouteModel): void {
-		const entry: RouterModelData = {};
-		for (const k of Object.keys(model)) {
-			const key = k as keyof RouterModelData;
-			const schema = model[key];
-			if (!schema) continue;
-			const handler = schema["~standard"].validate;
-			entry[key] = this.intern(
-				handler,
-				"model",
-				strRemoveWhitespace(JSON.stringify(schema)),
-			);
-		}
-		this.models.set(routeId, entry);
-	}
-
 	private findMiddleware(routeId: RouteId): RouterMiddlewareData | undefined {
 		return this.middlewares.get(routeId);
 	}
 
-	private findModel(routeId: RouteId): RouterModelData | undefined {
-		return this.models.get(routeId);
+	addRoute(r: AnyRoute): void {
+		const handler = this.intern(r.handler, "route", r.id);
+		this._adapter.add({
+			id: r.id,
+			endpoint: r.endpoint,
+			method: r.method,
+			handler,
+			pattern: r.pattern,
+		});
+	}
+
+	findRouteHandler(req: HttpRequest): Func<[], Promise<HttpResponse>> {
+		const cached = this.cache.get(req);
+		if (cached) return cached;
+
+		const result = this._adapter.find(req.method, req.urlObject.pathname);
+		if (!result) throw HttpError.notFound();
+
+		const route = result.route;
+		const ctx = Context.makeFromRequest(req);
+		const middleware = this.findMiddleware(route.id);
+		const model = this.findModel(route.id);
+
+		const handler = async () => {
+			await middleware?.(ctx);
+			await Context.appendParsedData(ctx, req, route.endpoint, model);
+			const result = await route.handler(ctx);
+			return result instanceof HttpResponse
+				? result
+				: new HttpResponse(result, {
+						cookies: ctx.res.cookies,
+						headers: ctx.res.headers,
+						status: ctx.res.status,
+						statusText: ctx.res.statusText,
+					});
+		};
+
+		this.cache.set(req, handler);
+		return handler;
+	}
+
+	getRouteList(): Array<[string, string]> {
+		return this._adapter.list();
 	}
 
 	private compile<F extends Func>(
@@ -156,6 +137,7 @@ export class Router {
 		return async (...args: Parameters<F>) => {
 			for (const fn of fns) {
 				if (!fn) continue;
+				// oxlint-disable-next-line typescript/await-thenable
 				await fn(...args);
 			}
 		};

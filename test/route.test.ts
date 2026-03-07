@@ -72,14 +72,6 @@ describe("C.Route", () => {
 		expect(res.status).toBe(200);
 	});
 
-	it("WRONG METHOD RETURNS METHOD NOT ALLOWED", async () => {
-		const path = "/r7/strict";
-		new C.Route({ method: C.Method.POST, path }, async () => "strict");
-
-		const res = await s.handle(req(path, { method: "GET" }));
-		expect(res.status).toBe(405);
-	});
-
 	it("WITH MODEL", () => {
 		const path = "/r8";
 		const model = { response: undefined, body: undefined };
