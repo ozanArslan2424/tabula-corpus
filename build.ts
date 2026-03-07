@@ -15,12 +15,16 @@ async function build() {
 		target: "bun",
 	};
 
-	await Bun.spawn(["tsc", "-p", "tsconfig.build.json"]).exited;
-
 	await Promise.all([
 		Bun.build({
 			...defaultBuildConfig,
-			plugins: [dts()],
+			plugins: [
+				dts({
+					compilationOptions: {
+						preferredConfigPath: "./tsconfig.build.json",
+					},
+				}),
+			],
 			format: "esm",
 			naming: "[dir]/[name].js",
 		}),

@@ -7,6 +7,7 @@ export const _router = new GlobalRouterStore();
 import * as C from "@/exports";
 
 export * from "@/exports";
+export * from "./Router/adapters/MemoiristAdapter";
 
 export { C };
 
