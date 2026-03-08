@@ -1,6 +1,6 @@
 import { type Method } from "@/Request/enums/Method";
 import { RouteVariant } from "@/Route/enums/RouteVariant";
-import { _router } from "@/index";
+import { _routerStore } from "@/index";
 import { RouteAbstract } from "@/Route/RouteAbstract";
 import type { RouteModel } from "@/Model/types/RouteModel";
 import type { RouteDefinition } from "@/Route/types/RouteDefinition";
@@ -36,9 +36,9 @@ export class Route<
 		this.model = model;
 		this.handler = handler;
 
-		_router.get().addRoute(this);
+		_routerStore.get().addRoute(this);
 		if (model) {
-			_router.get().addModel(this.id, model);
+			_routerStore.get().addModel(this.id, model);
 		}
 	}
 

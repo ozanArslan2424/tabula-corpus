@@ -6,7 +6,7 @@ import { RouteAbstract } from "@/Route/RouteAbstract";
 import type { RouteHandler } from "@/Route/types/RouteHandler";
 import type { RouteId } from "@/Route/types/RouteId";
 import type { RouteModel } from "@/Model/types/RouteModel";
-import { _router } from "@/index";
+import { _routerStore } from "@/index";
 import { CommonHeaders } from "@/Headers/enums/CommonHeaders";
 import type { StaticRouteHandler } from "@/Route/types/StaticRouteHandler";
 
@@ -46,7 +46,7 @@ export class StaticRoute<
 			this.handler = this.defaultHandler;
 		}
 
-		_router.get().addRoute(this);
+		_routerStore.get().addRoute(this);
 	}
 
 	id: RouteId;

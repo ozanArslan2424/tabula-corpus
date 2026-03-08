@@ -7,7 +7,7 @@ import type { RouteId } from "@/Route/types/RouteId";
 import type { RouteModel } from "@/Model/types/RouteModel";
 import { joinPathSegments } from "@/utils/joinPathSegments";
 import type { OrString } from "@/utils/types/OrString";
-import { _globalPrefix } from "@/index";
+import { _prefixStore } from "@/index";
 
 export abstract class RouteAbstract<
 	Path extends string = string,
@@ -31,7 +31,7 @@ export abstract class RouteAbstract<
 		const endpoint =
 			typeof definition === "string" ? definition : definition.path;
 		if (variant === RouteVariant.dynamic) {
-			return joinPathSegments(_globalPrefix.get(), endpoint);
+			return joinPathSegments(_prefixStore.get(), endpoint);
 		}
 		return endpoint;
 	}

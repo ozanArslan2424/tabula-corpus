@@ -1,4 +1,4 @@
-import { _router, type RouteDefinition } from "@/index";
+import { _routerStore, type RouteDefinition } from "@/index";
 import { createTestServer } from "./utils/createTestServer";
 import C from "@/index";
 import { beforeEach, describe, expect, it, spyOn } from "bun:test";

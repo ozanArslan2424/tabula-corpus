@@ -1,4 +1,3 @@
-import type { CorsOptions } from "@/Cors/types/CorsOptions";
 import type { ErrorHandler } from "@/Server/types/ErrorHandler";
 import type { MaybePromise } from "@/utils/types/MaybePromise";
 import type { RequestHandler } from "@/Server/types/RequestHandler";
@@ -11,8 +10,6 @@ export interface ServerInterface {
 	close(): Promise<void>;
 
 	setGlobalPrefix(value: string): void;
-
-	setCors(cors: CorsOptions): void;
 
 	/**
 	 *

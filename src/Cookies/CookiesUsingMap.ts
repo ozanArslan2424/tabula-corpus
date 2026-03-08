@@ -2,12 +2,12 @@ import { CookiesAbstract } from "@/Cookies/CookiesAbstract";
 import type { CookieOptions } from "@/Cookies/types/CookieOptions";
 import type { CookiesInit } from "@/Cookies/types/CookiesInit";
 import { strIsDefined } from "@/utils/strIsDefined";
-import { Parser } from "@/Model";
 import { strAfterMark } from "@/utils/strAfterMark";
 import { strBeforeMark } from "@/utils/strBeforeMark";
 import { strCapitalize } from "@/utils/strCapitalize";
 import { strSplit } from "@/utils/strSplit";
 import type { UnknownObject } from "@/utils/types/UnknownObject";
+import { X } from "@/index";
 
 export class CookiesUsingMap extends CookiesAbstract {
 	constructor(init?: CookiesInit) {
@@ -105,7 +105,7 @@ export class CookiesUsingMap extends CookiesAbstract {
 					console.warn(`cookie extracting and ${key} is not a cookie key`);
 					continue;
 				}
-				opts[keyMap[key]] = val ? Parser.processString(val) : undefined;
+				opts[keyMap[key]] = val ? X.Parser.processString(val) : undefined;
 			} else {
 				if (!keyMap[part]) {
 					console.warn(`cookie extracting and ${part} is not a cookie key`);

@@ -1,4 +1,4 @@
-import C from "@/index";
+import C, { X } from "@/index";
 import { describe, expect, it } from "bun:test";
 import { createTestServer } from "./utils/createTestServer";
 import { type } from "arktype";
@@ -122,50 +122,50 @@ const path = (...segments: (string | number)[]) =>
 
 describe("adaptive parsing based on library and schema definition", () => {
 	it("arkBasic - success", async () => {
-		expect(await C.Parser.parse(successData, getValidator(arkBasic))).toEqual(
+		expect(await X.Parser.parse(successData, getValidator(arkBasic))).toEqual(
 			successData,
 		);
 	});
 	it("zodBasic - success", async () => {
-		expect(await C.Parser.parse(successData, getValidator(zodBasic))).toEqual(
+		expect(await X.Parser.parse(successData, getValidator(zodBasic))).toEqual(
 			successData,
 		);
 	});
 	it("arkModelBasic - success", async () => {
 		expect(
-			await C.Parser.parse(successData, getValidator(Model.arkModelBasic)),
+			await X.Parser.parse(successData, getValidator(Model.arkModelBasic)),
 		).toEqual(successData);
 	});
 	it("zodModelBasic - success", async () => {
 		expect(
-			await C.Parser.parse(successData, getValidator(Model.zodModelBasic)),
+			await X.Parser.parse(successData, getValidator(Model.zodModelBasic)),
 		).toEqual(successData);
 	});
 	it("arkReferenced - success", async () => {
 		expect(
-			await C.Parser.parse(successData, getValidator(Model.arkReferenced)),
+			await X.Parser.parse(successData, getValidator(Model.arkReferenced)),
 		).toEqual(successData);
 	});
 	it("zodReferenced - success", async () => {
 		expect(
-			await C.Parser.parse(successData, getValidator(Model.zodReferenced)),
+			await X.Parser.parse(successData, getValidator(Model.zodReferenced)),
 		).toEqual(successData);
 	});
 	it("arkRoute - success", async () => {
 		expect(
-			await C.Parser.parse(
+			await X.Parser.parse(
 				successRouteData.params,
 				getValidator(Model.arkRoute.params),
 			),
 		).toEqual(successRouteData.params);
 		expect(
-			await C.Parser.parse(
+			await X.Parser.parse(
 				successRouteData.search,
 				getValidator(Model.arkRoute.search),
 			),
 		).toEqual(successRouteData.search);
 		expect(
-			await C.Parser.parse(
+			await X.Parser.parse(
 				successRouteData.body,
 				getValidator(Model.arkRoute.body),
 			),
@@ -173,19 +173,19 @@ describe("adaptive parsing based on library and schema definition", () => {
 	});
 	it("zodRoute - success", async () => {
 		expect(
-			await C.Parser.parse(
+			await X.Parser.parse(
 				successRouteData.params,
 				getValidator(Model.zodRoute.params),
 			),
 		).toEqual(successRouteData.params);
 		expect(
-			await C.Parser.parse(
+			await X.Parser.parse(
 				successRouteData.search,
 				getValidator(Model.zodRoute.search),
 			),
 		).toEqual(successRouteData.search);
 		expect(
-			await C.Parser.parse(
+			await X.Parser.parse(
 				successRouteData.body,
 				getValidator(Model.zodRoute.body),
 			),
@@ -193,19 +193,19 @@ describe("adaptive parsing based on library and schema definition", () => {
 	});
 	it("arkRouteReferenced - success", async () => {
 		expect(
-			await C.Parser.parse(
+			await X.Parser.parse(
 				successRouteData.params,
 				getValidator(Model.arkRouteReferenced.params),
 			),
 		).toEqual(successRouteData.params);
 		expect(
-			await C.Parser.parse(
+			await X.Parser.parse(
 				successRouteData.search,
 				getValidator(Model.arkRouteReferenced.search),
 			),
 		).toEqual(successRouteData.search);
 		expect(
-			await C.Parser.parse(
+			await X.Parser.parse(
 				successRouteData.body,
 				getValidator(Model.arkRouteReferenced.body),
 			),
@@ -213,19 +213,19 @@ describe("adaptive parsing based on library and schema definition", () => {
 	});
 	it("zodRouteReferenced - success", async () => {
 		expect(
-			await C.Parser.parse(
+			await X.Parser.parse(
 				successRouteData.params,
 				getValidator(Model.zodRouteReferenced.params),
 			),
 		).toEqual(successRouteData.params);
 		expect(
-			await C.Parser.parse(
+			await X.Parser.parse(
 				successRouteData.search,
 				getValidator(Model.zodRouteReferenced.search),
 			),
 		).toEqual(successRouteData.search);
 		expect(
-			await C.Parser.parse(
+			await X.Parser.parse(
 				successRouteData.body,
 				getValidator(Model.zodRouteReferenced.body),
 			),
@@ -248,7 +248,7 @@ describe("adaptive parsing based on library and schema definition", () => {
 				headers: { [C.CommonHeaders.ContentType]: "application/json" },
 			}),
 		);
-		expect(await C.Parser.getBody<ST>(res)).toEqual(successRouteData);
+		expect(await X.Parser.getBody<ST>(res)).toEqual(successRouteData);
 	});
 	it("zodRoute - Real Request - success", async () => {
 		new C.Route(
@@ -267,7 +267,7 @@ describe("adaptive parsing based on library and schema definition", () => {
 				headers: { [C.CommonHeaders.ContentType]: "application/json" },
 			}),
 		);
-		expect(await C.Parser.getBody<ST>(res)).toEqual(successRouteData);
+		expect(await X.Parser.getBody<ST>(res)).toEqual(successRouteData);
 	});
 	it("arkRouteReferenced - Real Request - success", async () => {
 		new C.Route(
@@ -291,7 +291,7 @@ describe("adaptive parsing based on library and schema definition", () => {
 				headers: { [C.CommonHeaders.ContentType]: "application/json" },
 			}),
 		);
-		expect(await C.Parser.getBody<ST>(res)).toEqual(successRouteData);
+		expect(await X.Parser.getBody<ST>(res)).toEqual(successRouteData);
 	});
 	it("zodRouteReferenced - Real Request - success", async () => {
 		new C.Route(
@@ -315,7 +315,7 @@ describe("adaptive parsing based on library and schema definition", () => {
 				headers: { [C.CommonHeaders.ContentType]: "application/json" },
 			}),
 		);
-		expect(await C.Parser.getBody<ST>(res)).toEqual(successRouteData);
+		expect(await X.Parser.getBody<ST>(res)).toEqual(successRouteData);
 	});
 	it("combined - Real Request - success", async () => {
 		new C.Route(
@@ -334,7 +334,7 @@ describe("adaptive parsing based on library and schema definition", () => {
 				headers: { [C.CommonHeaders.ContentType]: "application/json" },
 			}),
 		);
-		expect(await C.Parser.getBody<ST>(res)).toEqual(successRouteData);
+		expect(await X.Parser.getBody<ST>(res)).toEqual(successRouteData);
 	});
 	it("Controller - Real Request - success", async () => {
 		const url = new URL(
@@ -348,61 +348,61 @@ describe("adaptive parsing based on library and schema definition", () => {
 				headers: { [C.CommonHeaders.ContentType]: "application/json" },
 			}),
 		);
-		expect(await C.Parser.getBody<ST>(res)).toEqual(successRouteData);
+		expect(await X.Parser.getBody<ST>(res)).toEqual(successRouteData);
 	});
 
 	it("arkBasic - fail", () => {
 		expect(
-			async () => await C.Parser.parse(failData, getValidator(arkBasic)),
+			async () => await X.Parser.parse(failData, getValidator(arkBasic)),
 		).toThrow(C.Error);
 	});
 	it("zodBasic - fail", () => {
 		expect(
-			async () => await C.Parser.parse(failData, getValidator(zodBasic)),
+			async () => await X.Parser.parse(failData, getValidator(zodBasic)),
 		).toThrow(C.Error);
 	});
 	it("arkModelBasic - fail", () => {
 		expect(
 			async () =>
-				await C.Parser.parse(failData, getValidator(Model.arkModelBasic)),
+				await X.Parser.parse(failData, getValidator(Model.arkModelBasic)),
 		).toThrow(C.Error);
 	});
 	it("zodModelBasic - fail", () => {
 		expect(
 			async () =>
-				await C.Parser.parse(failData, getValidator(Model.zodModelBasic)),
+				await X.Parser.parse(failData, getValidator(Model.zodModelBasic)),
 		).toThrow(C.Error);
 	});
 	it("arkReferenced - fail", () => {
 		expect(
 			async () =>
-				await C.Parser.parse(failData, getValidator(Model.arkReferenced)),
+				await X.Parser.parse(failData, getValidator(Model.arkReferenced)),
 		).toThrow(C.Error);
 	});
 	it("zodReferenced - fail", () => {
 		expect(
 			async () =>
-				await C.Parser.parse(failData, getValidator(Model.zodReferenced)),
+				await X.Parser.parse(failData, getValidator(Model.zodReferenced)),
 		).toThrow(C.Error);
 	});
 	it("arkRoute - fail", () => {
 		expect(
 			async () =>
-				await C.Parser.parse(
+				await X.Parser.parse(
 					failRouteData.params,
 					getValidator(Model.arkRoute.params),
 				),
 		).toThrow(C.Error);
 		expect(
 			async () =>
-				await C.Parser.parse(
+				await X.Parser.parse(
 					failRouteData.search,
 					getValidator(Model.arkRoute.search),
 				),
 		).toThrow(C.Error);
 		expect(
 			async () =>
-				await C.Parser.parse(
+				await X.Parser.parse(
 					failRouteData.body,
 					getValidator(Model.arkRoute.body),
 				),
@@ -411,21 +411,21 @@ describe("adaptive parsing based on library and schema definition", () => {
 	it("zodRoute - fail", () => {
 		expect(
 			async () =>
-				await C.Parser.parse(
+				await X.Parser.parse(
 					failRouteData.params,
 					getValidator(Model.zodRoute.params),
 				),
 		).toThrow(C.Error);
 		expect(
 			async () =>
-				await C.Parser.parse(
+				await X.Parser.parse(
 					failRouteData.search,
 					getValidator(Model.zodRoute.search),
 				),
 		).toThrow(C.Error);
 		expect(
 			async () =>
-				await C.Parser.parse(
+				await X.Parser.parse(
 					failRouteData.body,
 					getValidator(Model.zodRoute.body),
 				),
@@ -434,21 +434,21 @@ describe("adaptive parsing based on library and schema definition", () => {
 	it("arkRouteReferenced - fail", () => {
 		expect(
 			async () =>
-				await C.Parser.parse(
+				await X.Parser.parse(
 					failRouteData.params,
 					getValidator(Model.arkRouteReferenced.params),
 				),
 		).toThrow(C.Error);
 		expect(
 			async () =>
-				await C.Parser.parse(
+				await X.Parser.parse(
 					failRouteData.search,
 					getValidator(Model.arkRouteReferenced.search),
 				),
 		).toThrow(C.Error);
 		expect(
 			async () =>
-				await C.Parser.parse(
+				await X.Parser.parse(
 					failRouteData.body,
 					getValidator(Model.arkRouteReferenced.body),
 				),
@@ -457,21 +457,21 @@ describe("adaptive parsing based on library and schema definition", () => {
 	it("zodRouteReferenced - fail", () => {
 		expect(
 			async () =>
-				await C.Parser.parse(
+				await X.Parser.parse(
 					failRouteData.params,
 					getValidator(Model.zodRouteReferenced.params),
 				),
 		).toThrow(C.Error);
 		expect(
 			async () =>
-				await C.Parser.parse(
+				await X.Parser.parse(
 					failRouteData.search,
 					getValidator(Model.zodRouteReferenced.search),
 				),
 		).toThrow(C.Error);
 		expect(
 			async () =>
-				await C.Parser.parse(
+				await X.Parser.parse(
 					failRouteData.body,
 					getValidator(Model.zodRouteReferenced.body),
 				),
@@ -582,7 +582,7 @@ describe("adaptive parsing based on library and schema definition", () => {
 		const url = new URL(path("controller", "optional"));
 		url.searchParams.set("groupId", "8");
 		const res = await s.handle(new Request(url));
-		expect(await C.Parser.getBody<{ groupId: number }>(res)).toEqual({
+		expect(await X.Parser.getBody<{ groupId: number }>(res)).toEqual({
 			groupId: 8,
 		});
 	});
@@ -590,7 +590,7 @@ describe("adaptive parsing based on library and schema definition", () => {
 	it("optional - missing", async () => {
 		const url = new URL(path("controller", "optional"));
 		const res = await s.handle(new Request(url));
-		const body = await C.Parser.getBody<{}>(res);
+		const body = await X.Parser.getBody<{}>(res);
 		expect(body).toBeEmptyObject();
 	});
 

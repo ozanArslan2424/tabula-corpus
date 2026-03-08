@@ -1,14 +1,16 @@
 import { GlobalPrefixStore } from "@/Store/globals/GlobalPrefixStore";
 import { GlobalRouterStore } from "@/Store/globals/GlobalRouterStore";
+import { GlobalCorsStore } from "@/Store/globals/GlobalCorsStore.js";
+import * as C from "@/C";
+import * as X from "@/X";
 
-export const _globalPrefix = new GlobalPrefixStore();
-export const _router = new GlobalRouterStore();
+export const _prefixStore = new GlobalPrefixStore();
+export const _routerStore = new GlobalRouterStore();
+export const _corsStore = new GlobalCorsStore();
 
-import * as C from "@/exports";
+export type * from "./types.d.ts";
 
-export * from "@/exports";
-export * from "./Router/adapters/MemoiristAdapter";
+export * from "@/C";
+export * from "@/X";
 
-export { C };
-
-export default C;
+export { C, C as default, X, X as Extra };

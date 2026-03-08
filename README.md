@@ -30,7 +30,7 @@ new C.Route("/health", () => "ok");
 server.listen(3000);
 ```
 
-That's it. Your bare bones backend is running.
+That's it. Your barebones backend is running.
 
 ## What does this library do?
 
@@ -41,24 +41,26 @@ That's it. Your bare bones backend is running.
 - Request handling using `RouteContext` (the `(c) => {}` callback pattern)
 - Loading env variables using `Config`
 - Other utilities such as setting cors, global prefix, error handling etc.
+- The package exports two modules: `C` (default) for the core API, and `X` - also importable as `Extra` - for additional utilities like Cors, Repository, router adapters etc.
 
 ## How does the routing work?
 
 - Routes, route models and middlewares are lazily registered to their respective registries on class initialization. Router uses the registries and is created with the Server object. The Server should be created before any route, controller or middleware.
 - Router is RegExp based and supports route parameters.
-- The router isn't very advanced since this is my very first time working on such a project, I appreciate all feedback.
+- Router supports drop-in replacements with the provided adapters as the default router is quite simple.
 
 ## Runtime?
 
-Originally I wanted to support Node and Bun runtimes but to be honest, I didn't test with node at all because I almost always prefer Bun in my personal projects and this library is meant to be used for small personal projects. Maybe I'll get back to the idea later on.
+Bun only for now, Node support planned. This is due to lack of testing, if you can get it working with node using the existing internal classes like ServerUsingBun etc. you are free to!
 
-## What is the pattern I had in mind?
+## Recommended Pattern
 
 ```typescript
-// You can also use something else
+// Any schema library that supports standard schema works
 import { type } from "arktype";
-// You can also import everything by name
-import C from "@ozanarslan/corpus";
+// You can import The main module C by name or as a default,
+// X is the Extra module and can also be imported as "Extra"
+import C, { X } from "@ozanarslan/corpus";
 
 // You can use schemas however you want, I just really like this.
 export class ItemModel {
@@ -73,12 +75,12 @@ export class ItemModel {
 }
 
 // This helper type could also work for similar prototypes
-export type ItemType = C.InferModel<typeof ItemModel>;
+export type ItemType = X.InferModel<typeof ItemModel>;
 
 // This is also a personal helper, all repositories get
 // the DatabaseClientInterface in constructor args.
 // This interface can be extended.
-export class ItemRepository extends C.Repository {
+export class ItemRepository extends X.Repository {
 	// ...
 }
 
@@ -105,21 +107,23 @@ export class ItemController extends C.Controller {
 	);
 
 	// Static routes can also be in the controller instead of new StaticRoute()
-	page = this
-		.staticRoute
-		// ...
-		();
+	page = this.staticRoute(...)
 }
 
 // Server must be created first for the router
-const server = new C.Server();
+const server = new C.Server({
+    // There are some supported adapters for the router,
+    // The default router with no dependencies is very simple
+    // so I wanted to make it drop-in replaceable.
+    adapter: new X.SomeSupportedRouterAdapter()
+});
 // This DOES NOT apply to static routes
 server.setGlobalPrefix("/api");
 
 // Cors headers are applied globally if you set them this way also
 // any request with Access-Control-Request-Method header and OPTIONS
 // method is handled as a preflight request.
-server.setCors({});
+new X.Cors({})
 
 const db = new DatabaseClient();
 server.setOnBeforeListen(() => db.connect());
@@ -162,13 +166,8 @@ Very much inspired from the core ideas behind [Elysia](https://github.com/elysia
 
 # Roadmap
 
-- [ ] Better and more memory efficient router
-- [ ] Reduce dist size
-- [ ] Support ArrayBuffer in custom Response wrapper object
-- [ ] Support Blob in custom Response wrapper object
-- [ ] Support FormData in custom Response wrapper object
-- [ ] Support URLSearchParams in custom Response wrapper object
-- [ ] Support ReadableStream in custom Response wrapper object
+- [x] Better and more memory efficient router
+- [x] Reduce dist size
+- [ ] Support additional response body types (ArrayBuffer, Blob, FormData, etc.) in the custom Response object.
 - [ ] Support WebSocket
 - [ ] Compress static files in StaticRoute for caching and stuff maybe?
-- [ ] Better everything

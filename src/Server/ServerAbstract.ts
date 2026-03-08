@@ -1,10 +1,8 @@
 import { Status } from "@/Response/enums/Status";
-import { _globalPrefix, _router } from "@/index";
-import { Cors } from "@/Cors/Cors";
+import { _corsStore, _prefixStore, _routerStore } from "@/index";
 import { HttpError } from "@/Error/HttpError";
 import { HttpRequest } from "@/Request/HttpRequest";
 import { HttpResponse } from "@/Response/HttpResponse";
-import type { CorsOptions } from "@/Cors/types/CorsOptions";
 import type { ErrorHandler } from "@/Server/types/ErrorHandler";
 import type { MaybePromise } from "@/utils/types/MaybePromise";
 import type { RequestHandler } from "@/Server/types/RequestHandler";
@@ -20,15 +18,15 @@ export abstract class ServerAbstract implements ServerInterface {
 	abstract close(): Promise<void>;
 
 	constructor(opts?: ServerOptions) {
-		_router.set(new Router(opts?.adapter));
+		_routerStore.set(new Router(opts?.adapter));
 	}
 
 	get routes(): Array<[string, string]> {
-		return _router.get().getRouteList();
+		return _routerStore.get().getRouteList();
 	}
 
 	setGlobalPrefix(value: string): void {
-		_globalPrefix.set(value);
+		_prefixStore.set(value);
 	}
 
 	async listen(
@@ -56,8 +54,9 @@ export abstract class ServerAbstract implements ServerInterface {
 	async handle(request: Request): Promise<Response> {
 		const req = new HttpRequest(request);
 		let res = await this.getResponse(req);
-		if (this.cors !== undefined) {
-			this.cors.apply(req, res);
+		const cors = _corsStore.get();
+		if (cors !== null) {
+			cors.apply(req, res);
 		}
 		if (this.handleAfterResponse) {
 			res = await this.handleAfterResponse(res);
@@ -71,7 +70,7 @@ export abstract class ServerAbstract implements ServerInterface {
 				return new HttpResponse("Departed");
 			}
 
-			const handler = _router.get().findRouteHandler(req);
+			const handler = _routerStore.get().findRouteHandler(req);
 			return await handler();
 		} catch (err) {
 			if (err instanceof HttpError) {
@@ -85,11 +84,6 @@ export abstract class ServerAbstract implements ServerInterface {
 			}
 			return await this.handleError(err as Error);
 		}
-	}
-
-	protected cors: Cors | undefined;
-	setCors(opts: CorsOptions | undefined): void {
-		this.cors = opts ? new Cors(opts) : undefined;
 	}
 
 	protected handleBeforeListen: Func<[], MaybePromise<void>> | undefined;

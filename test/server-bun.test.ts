@@ -1,4 +1,4 @@
-import C, { _globalPrefix } from "@/index";
+import C, { _prefixStore, X } from "@/index";
 import { describe, expect, it } from "bun:test";
 import { createTestServer } from "./utils/createTestServer";
 import { req } from "./utils/req";
@@ -22,7 +22,7 @@ describe("C.Server USING BUN", () => {
 	it("HANDLE - RETURNS HANDLER RESULT AS BODY", async () => {
 		new C.Route("/srv-body", () => ({ hello: "world" }));
 		const res = await s.handle(req("/srv-body"));
-		const data = await C.Parser.getBody<{ hello: string }>(res);
+		const data = await X.Parser.getBody<{ hello: string }>(res);
 		expect(data.hello).toBe("world");
 	});
 
@@ -54,7 +54,7 @@ describe("C.Server USING BUN", () => {
 		});
 		const res = await s.handle(req("/srv-error"));
 		expect(res.status).toBe(500);
-		const data = await C.Parser.getBody<{ message: string }>(res);
+		const data = await X.Parser.getBody<{ message: string }>(res);
 		expect(data.message).toBe("custom error");
 
 		s.setOnError(s.defaultErrorHandler);
@@ -74,7 +74,7 @@ describe("C.Server USING BUN", () => {
 		});
 		const res = await s.handle(req("/srv-httperror"));
 		expect(res.status).toBe(400);
-		const data = await C.Parser.getBody<{ message: string }>(res);
+		const data = await X.Parser.getBody<{ message: string }>(res);
 		expect(data.message).toBe("bad input");
 	});
 
@@ -89,7 +89,7 @@ describe("C.Server USING BUN", () => {
 		});
 		const res = await s.handle(req("/srv-custom-404"));
 		expect(res.status).toBe(404);
-		const data = await C.Parser.getBody<{ message: string }>(res);
+		const data = await X.Parser.getBody<{ message: string }>(res);
 		expect(data.message).toBe("custom not found");
 
 		s.setOnNotFound(s.defaultNotFoundHandler);
@@ -98,7 +98,7 @@ describe("C.Server USING BUN", () => {
 	it("SET ON NOT FOUND - DEFAULT HANDLER INCLUDES METHOD AND URL", async () => {
 		const res = await s.handle(req("/srv-default-404"));
 		expect(res.status).toBe(404);
-		const data = await C.Parser.getBody<{ message: string }>(res);
+		const data = await X.Parser.getBody<{ message: string }>(res);
 		expect(data.message).toContain("GET");
 		expect(data.message).toContain("/srv-default-404");
 	});
@@ -149,7 +149,7 @@ describe("C.Server USING BUN", () => {
 	// ─── CORS integration ─────────────────────────────────────────
 
 	it("CORS - SETS ORIGIN HEADER ON ALLOWED ORIGIN", async () => {
-		s.setCors({ allowedOrigins: ["https://example.com"] });
+		new X.Cors({ allowedOrigins: ["https://example.com"] });
 		new C.Route("/srv-cors", () => "ok");
 		const res = await s.handle(
 			req("/srv-cors", { headers: { origin: "https://example.com" } }),
@@ -157,17 +157,17 @@ describe("C.Server USING BUN", () => {
 		expect(res.headers.get("Access-Control-Allow-Origin")).toBe(
 			"https://example.com",
 		);
-		s.setCors(undefined);
+		new X.Cors(undefined);
 	});
 
 	it("CORS - DOES NOT SET ORIGIN HEADER ON DISALLOWED ORIGIN", async () => {
-		s.setCors({ allowedOrigins: ["https://example.com"] });
+		new X.Cors({ allowedOrigins: ["https://example.com"] });
 		new C.Route("/srv-cors-blocked", () => "ok");
 		const res = await s.handle(
 			req("/srv-cors-blocked", { headers: { origin: "https://evil.com" } }),
 		);
 		expect(res.headers.get("Access-Control-Allow-Origin")).toBeNull();
-		s.setCors(undefined);
+		new X.Cors(undefined);
 	});
 
 	it("CORS - IS NOT APPLIED WHEN NOT SET", async () => {

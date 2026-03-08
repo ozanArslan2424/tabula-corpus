@@ -1,5 +1,5 @@
 import { joinPathSegments } from "@/utils/joinPathSegments";
-import { _globalPrefix } from "@/index";
+import { _prefixStore } from "@/index";
 
 export const TEST_PORT = 4444;
 
@@ -9,7 +9,7 @@ export function req(addr: string, init?: RequestInit) {
 
 export function reqPath(addr: string): string {
 	return `http://localhost:${TEST_PORT}${joinPathSegments(
-		_globalPrefix.get(),
+		_prefixStore.get(),
 		addr,
 	)}`;
 }

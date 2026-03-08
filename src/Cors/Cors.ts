@@ -3,11 +3,18 @@ import type { HttpResponse } from "@/Response/HttpResponse";
 import type { CorsOptions } from "@/Cors/types/CorsOptions";
 import { boolToString } from "@/utils/boolToString";
 import { isSomeArray } from "@/utils/isSomeArray";
+import { _corsStore } from "@/index";
 
 /** Simple cors helper object to set cors headers */
 
 export class Cors {
-	constructor(readonly opts: CorsOptions) {}
+	constructor(readonly opts: CorsOptions | undefined) {
+		if (opts === undefined) {
+			_corsStore.set(null);
+		} else {
+			_corsStore.set(this);
+		}
+	}
 
 	private readonly originKey = "Access-Control-Allow-Origin";
 	private readonly methodsKey = "Access-Control-Allow-Methods";
@@ -18,7 +25,7 @@ export class Cors {
 		const reqOrigin = req.headers.get("origin") ?? "";
 
 		const { allowedOrigins, allowedMethods, allowedHeaders, credentials } =
-			this.opts;
+			this.opts ?? {};
 
 		if (isSomeArray(allowedOrigins) && allowedOrigins.includes(reqOrigin)) {
 			res.headers.set(this.originKey, reqOrigin);
