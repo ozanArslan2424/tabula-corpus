@@ -12,12 +12,13 @@ import type { AfterResponseHandler } from "@/Server/types/AfterResponseHandler";
 import { Router } from "@/Router/Router";
 import type { Func } from "@/utils/types/Func";
 import type { ServerOptions } from "@/Server/types/ServerOptions";
+import { testDebug } from "@/utils/testDebug";
 
 export abstract class ServerAbstract implements ServerInterface {
 	abstract serve(options: ServeArgs): void;
 	abstract close(): Promise<void>;
 
-	constructor(opts?: ServerOptions) {
+	constructor(protected readonly opts?: ServerOptions) {
 		_routerStore.set(new Router(opts?.adapter));
 	}
 
@@ -52,6 +53,7 @@ export abstract class ServerAbstract implements ServerInterface {
 	}
 
 	async handle(request: Request): Promise<Response> {
+		testDebug("request", request);
 		const req = new HttpRequest(request);
 		let res = await this.getResponse(req);
 		const cors = _corsStore.get();
@@ -61,6 +63,7 @@ export abstract class ServerAbstract implements ServerInterface {
 		if (this.handleAfterResponse) {
 			res = await this.handleAfterResponse(res);
 		}
+		testDebug("response", res.response);
 		return res.response;
 	}
 

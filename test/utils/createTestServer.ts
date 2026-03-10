@@ -1,12 +1,18 @@
 import C from "@/index";
+import { ServerUsingBun } from "@/Server/ServerUsingBun";
+import { ServerUsingNode } from "@/Server/ServerUsingNode";
 
 export function createTestServer(
-	opts?: C.ServerOptions & { withLogging?: boolean },
+	opts?: C.ServerOptions & { withLogging?: boolean; use?: "bun" | "node" },
 ) {
-	const { withLogging, ...serverOpts } = opts ?? {
+	const { withLogging, use, ...serverOpts } = opts ?? {
 		withLogging: false,
+		use: "bun",
 	};
-	const s = new C.Server(serverOpts);
+	const s =
+		use === "bun"
+			? new ServerUsingBun(serverOpts)
+			: new ServerUsingNode(serverOpts);
 
 	if (withLogging === true) {
 		s.setOnError((err) => {

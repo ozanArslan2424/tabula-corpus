@@ -1,9 +1,9 @@
 import C, { X } from "@/index";
 import { describe, expect, it } from "bun:test";
-import { createNodeTestServer } from "./utils/createNodeTestServer";
 import { req } from "./utils/req";
+import { createTestServer } from "./utils/createTestServer";
 
-const s = createNodeTestServer();
+const s = createTestServer({ use: "node" });
 
 describe("C.Server USING NODE", () => {
 	// ─── handle() - routing ───────────────────────────────────────

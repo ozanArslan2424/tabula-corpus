@@ -1,7 +1,8 @@
 import { Config } from "@/Config/Config";
 import { ServerAbstract } from "@/Server/ServerAbstract";
 import type { ServeArgs } from "@/Server/types/ServeArgs";
-import type { ServerAppUsingBun } from "@/Server/types/ServerAppUsingBun";
+
+type ServerAppUsingBun = Bun.Server<undefined>;
 
 export class ServerUsingBun extends ServerAbstract {
 	private app: ServerAppUsingBun | undefined;
@@ -26,6 +27,8 @@ export class ServerUsingBun extends ServerAbstract {
 			port: options.port,
 			hostname: options.hostname,
 			fetch: options.fetch,
+			idleTimeout: this.opts?.idleTimeout,
+			tls: this.opts?.tls,
 		});
 	}
 }
