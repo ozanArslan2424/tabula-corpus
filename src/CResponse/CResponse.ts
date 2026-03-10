@@ -10,8 +10,8 @@ import { isPrimitive } from "@/utils/isPrimitive";
 import { isPlainObject } from "@/utils/isPlainObject";
 import type { SseSource } from "@/CResponse/types/SseSource";
 import type { NdjsonSource } from "@/CResponse/types/NdjsonSource";
-import { FileWalker } from "@/FileWalker";
 import { CError } from "@/CError/CError";
+import { XFile } from "@/XFile";
 
 /**
  * Represents an HTTP response. Pass it a body and optional init to construct a response,
@@ -177,14 +177,14 @@ export class CResponse<R = unknown> {
 		disposition: "attachment" | "inline" = "attachment",
 		init?: Omit<CResponseInit, "status">,
 	): Promise<CResponse> {
-		const file = await FileWalker.find(filePath);
+		const file = new XFile(filePath);
 		if (!file) {
 			throw CError.notFound();
 		}
 		const stream = file.stream();
 		const res = new CResponse(stream, { ...init, status: Status.OK });
 		res.headers.setMany({
-			[CommonHeaders.ContentType]: file?.mimeType,
+			[CommonHeaders.ContentType]: file.mimeType,
 			[CommonHeaders.ContentDisposition]: `${disposition}; filename="${file.name}"`,
 		});
 		return res;
@@ -194,14 +194,14 @@ export class CResponse<R = unknown> {
 		filePath: string,
 		init?: CResponseInit,
 	): Promise<CResponse> {
-		const file = await FileWalker.find(filePath);
+		const file = new XFile(filePath);
 		if (!file) {
 			throw CError.notFound();
 		}
 		const content = await file.text();
 		const res = new CResponse(content, init);
 		res.headers.setMany({
-			[CommonHeaders.ContentType]: FileWalker.getMimeType(filePath),
+			[CommonHeaders.ContentType]: file.mimeType,
 			[CommonHeaders.ContentLength]: content.length.toString(),
 		});
 		return res;

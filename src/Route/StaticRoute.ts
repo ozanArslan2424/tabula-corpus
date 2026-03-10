@@ -1,6 +1,5 @@
 import { Method } from "@/CRequest/enums/Method";
 import { RouteVariant } from "@/Route/enums/RouteVariant";
-import { FileWalker } from "@/FileWalker/FileWalker";
 import { CError } from "@/CError/CError";
 import { CResponse } from "@/CResponse/CResponse";
 import { RouteAbstract } from "@/Route/RouteAbstract";
@@ -11,6 +10,7 @@ import { CommonHeaders } from "@/CHeaders/enums/CommonHeaders";
 import type { StaticRouteHandler } from "@/Route/types/StaticRouteHandler";
 import type { StaticRouteDefinition } from "@/Route/types/StaticRouteDefinition";
 import { _routerStore } from "@/index";
+import { XFile } from "@/XFile";
 
 /**
  * Defines a route that serves a static file. Accepts a path and a {@link StaticRouteDefinition}
@@ -79,14 +79,14 @@ export class StaticRoute<
 	): RouteHandler<B, S, P, string | CResponse> {
 		if (customHandler !== undefined) {
 			return async (c) => {
-				const file = await FileWalker.find(this.filePath);
+				const file = new XFile(this.filePath);
 				if (!file) {
 					console.error("File not found at:", this.filePath);
 					throw CError.notFound();
 				}
 				const content = await file.text();
 				c.res.headers.setMany({
-					[CommonHeaders.ContentType]: FileWalker.getMimeType(this.filePath),
+					[CommonHeaders.ContentType]: file.mimeType,
 					[CommonHeaders.ContentLength]: content.length.toString(),
 				});
 				return customHandler(c, content);

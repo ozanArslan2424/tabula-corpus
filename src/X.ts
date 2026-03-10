@@ -1,6 +1,6 @@
 export * from "./Cors";
 
-export * from "./FileWalker";
+export { XFile as File } from "./XFile";
 
 export * from "./Repository";
 
