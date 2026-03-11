@@ -1,4 +1,4 @@
-import C, { _prefixStore, X } from "@/index";
+import C, { X } from "@/index";
 import { describe, expect, it } from "bun:test";
 import { createTestServer } from "./utils/createTestServer";
 import { req } from "./utils/req";
@@ -70,7 +70,7 @@ describe("C.Server USING BUN", () => {
 
 	it("SET ON ERROR - HTTP ERROR IS HANDLED BY DEFAULT HANDLER", async () => {
 		new C.Route("/srv-httperror", () => {
-			throw C.Error.badRequest("bad input");
+			throw new C.Error("bad input", C.Status.BAD_REQUEST);
 		});
 		const res = await s.handle(req("/srv-httperror"));
 		expect(res.status).toBe(400);

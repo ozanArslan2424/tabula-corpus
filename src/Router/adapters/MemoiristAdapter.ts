@@ -5,12 +5,13 @@ import type { RouterReturnData } from "@/Router/types/RouterReturnData";
 import type { AnyRouteModel } from "@/Model/types/AnyRouteModel";
 import type { RouterModelData } from "@/Router/types/RouterModelData";
 import { ModelRegistry } from "@/Router/registries/ModelRegistry";
-import type { Middleware, MiddlewareHandler } from "@/Middleware";
 import type { RouteId } from "@/Route/types/RouteId";
 import { compile } from "@/utils/compile";
 import { MiddlewareRegistry } from "@/Router/registries/MiddlewareRegistry";
 import type { CRequest } from "@/CRequest/CRequest";
 import type { AnyRoute } from "@/Route/types/AnyRoute";
+import type { MiddlewareHandler } from "@/Middleware/types/MiddlewareHandler";
+import type { Middleware } from "@/Middleware/Middleware";
 
 type MemoiristData = {
 	route: RouterRouteData;

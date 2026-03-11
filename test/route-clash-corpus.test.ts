@@ -3,13 +3,14 @@ import { createTestServer } from "./utils/createTestServer";
 import C from "@/index";
 import { beforeEach, describe, expect, it, spyOn } from "bun:test";
 import { CorpusAdapter } from "@/Router/adapters/CorpusAdapter";
+import { internalLogger } from "@/utils/internalLogger";
 
 describe("CorpusAdapter - Route Collision Detection", () => {
 	createTestServer({
 		// optional
 		adapter: new CorpusAdapter(),
 	});
-	const errorSpy = spyOn(console, "error");
+	const errorSpy = spyOn(internalLogger, "error");
 	beforeEach(() => errorSpy.mockReset());
 
 	function makeRoutes(r1: RouteDefinition, r2: RouteDefinition) {

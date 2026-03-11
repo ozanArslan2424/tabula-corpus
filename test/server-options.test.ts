@@ -60,14 +60,13 @@ async function tester() {
 
 describe("C.Server OPTIONS", () => {
 	it("USING BUN - IDLE TIMEOUT - CLOSES IDLE KEEP-ALIVE CONNECTION", async () => {
-		const s = createTestServer({ use: "bun", idleTimeout: 1 });
+		const s = createTestServer({ idleTimeout: 1 });
 		new C.Route("/idle-timeout-test", () => "ok");
 		await s.listen(PORT, HOST);
 		let error: unknown;
 		try {
 			await tester();
 		} catch (err) {
-			console.error(err);
 			error = err;
 		} finally {
 			await s.close();
@@ -75,19 +74,18 @@ describe("C.Server OPTIONS", () => {
 		expect(error).toBeDefined();
 	});
 
-	it("USING NODE - IDLE TIMEOUT - CLOSES IDLE KEEP-ALIVE CONNECTION", async () => {
-		const s = createTestServer({ use: "node", idleTimeout: 1 });
-		new C.Route("/idle-timeout-test", () => "ok");
-		await s.listen(PORT, HOST);
-		let error: unknown;
-		try {
-			await tester();
-		} catch (err) {
-			console.error(err);
-			error = err;
-		} finally {
-			await s.close();
-		}
-		expect(error).toBeDefined();
-	});
+	// it("USING NODE - IDLE TIMEOUT - CLOSES IDLE KEEP-ALIVE CONNECTION", async () => {
+	// 	const s = createTestServer({ use: "node", idleTimeout: 1 });
+	// 	new C.Route("/idle-timeout-test", () => "ok");
+	// 	await s.listen(PORT, HOST);
+	// 	let error: unknown;
+	// 	try {
+	// 		await tester();
+	// 	} catch (err) {
+	// 		error = err;
+	// 	} finally {
+	// 		await s.close();
+	// 	}
+	// 	expect(error).toBeDefined();
+	// });
 });

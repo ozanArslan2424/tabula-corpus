@@ -11,7 +11,7 @@ import { isPlainObject } from "@/utils/isPlainObject";
 import type { SseSource } from "@/CResponse/types/SseSource";
 import type { NdjsonSource } from "@/CResponse/types/NdjsonSource";
 import { CError } from "@/CError/CError";
-import { XFile } from "@/XFile";
+import { XFile } from "@/XFile/XFile";
 
 /**
  * Represents an HTTP response. Pass it a body and optional init to construct a response,
@@ -41,14 +41,14 @@ import { XFile } from "@/XFile";
 
 export class CResponse<R = unknown> {
 	constructor(
-		protected readonly data?: CResponseBody<R>,
+		public data?: CResponseBody<R>,
 		protected readonly init?: CResponseInit,
 	) {
 		this.cookies = this.resolveCookies();
 		this.headers = this.resolveHeaders();
 		this.body = this.resolveBody();
 		this.status = this.resolveStatus();
-		this.statusText = this.getDefaultStatusText();
+		this.statusText = CResponse.getDefaultStatusText(this.status);
 	}
 
 	body: BodyInit;
@@ -178,8 +178,13 @@ export class CResponse<R = unknown> {
 		init?: Omit<CResponseInit, "status">,
 	): Promise<CResponse> {
 		const file = new XFile(filePath);
-		if (!file) {
-			throw CError.notFound();
+		const exists = await file.exists();
+		if (!exists) {
+			throw new CError(
+				Status.NOT_FOUND.toString(),
+				Status.NOT_FOUND,
+				new CResponse({ filePath }, init),
+			);
 		}
 		const stream = file.stream();
 		const res = new CResponse(stream, { ...init, status: Status.OK });
@@ -195,8 +200,13 @@ export class CResponse<R = unknown> {
 		init?: CResponseInit,
 	): Promise<CResponse> {
 		const file = new XFile(filePath);
-		if (!file) {
-			throw CError.notFound();
+		const exists = await file.exists();
+		if (!exists) {
+			throw new CError(
+				Status.NOT_FOUND.toString(),
+				Status.NOT_FOUND,
+				new CResponse({ filePath }, init),
+			);
 		}
 		const content = await file.text();
 		const res = new CResponse(content, init);
@@ -294,8 +304,8 @@ export class CResponse<R = unknown> {
 		return String(this.data);
 	}
 
-	private getDefaultStatusText(): string {
-		const key = this.status as keyof typeof DefaultStatusTexts;
+	static getDefaultStatusText(status: number): string {
+		const key = status as keyof typeof DefaultStatusTexts;
 		return DefaultStatusTexts[key] ?? "Unknown";
 	}
 }

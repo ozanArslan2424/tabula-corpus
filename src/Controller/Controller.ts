@@ -10,7 +10,7 @@ import type { RouteDefinition } from "@/Route/types/RouteDefinition";
  * Base class for grouping related routes under a shared prefix and optional middleware.
  * Extend this class to create your own controllers.
  *
- * All routes registered via {@link ControllerAbstract.route} and {@link ControllerAbstract.staticRoute}
+ * All routes registered via {@link Controller.route} and {@link Controller.staticRoute}
  * automatically inherit the controller's prefix and run `beforeEach` before the handler if set.
  *
  * @example
@@ -29,7 +29,7 @@ import type { RouteDefinition } from "@/Route/types/RouteDefinition";
  * new UserController();
  */
 
-export abstract class ControllerAbstract {
+export abstract class Controller {
 	constructor(opts?: ControllerOptions) {
 		this.prefix = opts?.prefix;
 		this.beforeEach = opts?.beforeEach;

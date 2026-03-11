@@ -2,13 +2,12 @@ import { Context } from "@/Context/Context";
 import type { CRequest } from "@/CRequest/CRequest";
 import { CResponse } from "@/CResponse/CResponse";
 import type { AnyRoute } from "@/Route/types/AnyRoute";
-import { CError } from "@/CError/CError";
 import type { Func } from "@/utils/types/Func";
 import type { RouterAdapterInterface } from "@/Router/adapters/RouterAdapterInterface";
 import { CorpusAdapter } from "@/Router/adapters/CorpusAdapter";
 import type { RouterRouteData } from "@/Router/types/RouterRouteData";
 import type { AnyRouteModel } from "@/Model/types/AnyRouteModel";
-import type { Middleware } from "@/Middleware";
+import type { Middleware } from "@/Middleware/Middleware";
 
 export class Router {
 	constructor(adapter?: RouterAdapterInterface) {
@@ -16,6 +15,7 @@ export class Router {
 	}
 
 	models: AnyRouteModel[] = [];
+	middlewares: Middleware[] = [];
 	private _adapter: RouterAdapterInterface;
 	private cache = new WeakMap<CRequest, Func<[], Promise<CResponse>>>();
 
@@ -32,6 +32,7 @@ export class Router {
 	}
 
 	addMiddleware(middleware: Middleware): void {
+		this.middlewares.push(middleware);
 		this._adapter.addMiddleware(middleware);
 	}
 
@@ -45,15 +46,16 @@ export class Router {
 		});
 	}
 
-	findRouteHandler(req: CRequest): Func<[], Promise<CResponse>> {
+	findRouteHandler(req: CRequest): Func<[], Promise<CResponse>> | null {
 		const cached = this.cache.get(req);
 		if (cached) return cached;
 
 		const match = this._adapter.find(req);
-		if (!match) throw CError.notFound();
+		if (!match) {
+			return null;
+		}
 
 		const ctx = Context.makeFromRequest(req);
-
 		const handler = async () => {
 			await match.middleware?.(ctx);
 			await Context.appendParsedData(
@@ -63,15 +65,13 @@ export class Router {
 				match.search,
 				match.model,
 			);
-			const res = await match.route.handler(ctx);
-			return res instanceof CResponse
-				? res
-				: new CResponse(res, {
-						cookies: ctx.res.cookies,
-						headers: ctx.res.headers,
-						status: ctx.res.status,
-						statusText: ctx.res.statusText,
-					});
+			const result = await match.route.handler(ctx);
+
+			if (result instanceof CResponse) {
+				return result;
+			}
+
+			return new CResponse(result, ctx.res);
 		};
 
 		this.cache.set(req, handler);

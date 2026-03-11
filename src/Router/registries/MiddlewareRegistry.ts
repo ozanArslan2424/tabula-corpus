@@ -1,7 +1,7 @@
-import type { Context } from "@/Context";
-import { ControllerAbstract } from "@/Controller/ControllerAbstract";
-import type { Middleware } from "@/Middleware";
-import { Route } from "@/Route";
+import type { Context } from "@/Context/Context";
+import { Controller } from "@/Controller/Controller";
+import type { Middleware } from "@/Middleware/Middleware";
+import { Route } from "@/Route/Route";
 import type { RouteId } from "@/Route/types/RouteId";
 import type { RouterMiddlewareData } from "@/Router/types/RouterMiddlewareData";
 import { LazyMap } from "@/Store/LazyMap";
@@ -47,7 +47,7 @@ export class MiddlewareRegistry {
 		for (const target of targets) {
 			if (target instanceof Route) {
 				routeIds.push(target.id);
-			} else if (target instanceof ControllerAbstract) {
+			} else if (target instanceof Controller) {
 				routeIds.push(...target.routeIds);
 			}
 		}

@@ -12,6 +12,7 @@ import type { AfterResponseHandler } from "@/Server/types/AfterResponseHandler";
 import { Router } from "@/Router/Router";
 import type { Func } from "@/utils/types/Func";
 import type { ServerOptions } from "@/Server/types/ServerOptions";
+import { internalLogger } from "@/utils/internalLogger";
 
 export abstract class ServerAbstract implements ServerInterface {
 	abstract serve(options: ServeArgs): void;
@@ -37,7 +38,7 @@ export abstract class ServerAbstract implements ServerInterface {
 			process.on("SIGINT", () => this.close());
 			process.on("SIGTERM", () => this.close());
 
-			console.log(`Listening on ${hostname}:${port}`);
+			internalLogger.log(`Listening on ${hostname}:${port}`);
 
 			await this.handleBeforeListen?.();
 			this.serve({
@@ -46,7 +47,7 @@ export abstract class ServerAbstract implements ServerInterface {
 				fetch: (r) => this.handle(r),
 			});
 		} catch (err) {
-			console.error("Server unable to start:", err);
+			internalLogger.error("Server unable to start:", err);
 			await this.close();
 		}
 	}
@@ -71,17 +72,11 @@ export abstract class ServerAbstract implements ServerInterface {
 			}
 
 			const handler = _routerStore.get().findRouteHandler(req);
+			if (!handler) {
+				return await this.handleNotFound(req);
+			}
 			return await handler();
 		} catch (err) {
-			if (err instanceof CError) {
-				if (err.isStatusOf(Status.NOT_FOUND)) {
-					return await this.handleNotFound(req);
-				}
-
-				if (err.isStatusOf(Status.METHOD_NOT_ALLOWED)) {
-					return await this.handleMethodNotAllowed(req);
-				}
-			}
 			return await this.handleError(err as Error);
 		}
 	}
@@ -109,18 +104,12 @@ export abstract class ServerAbstract implements ServerInterface {
 		this.handleError = handler;
 	}
 	defaultErrorHandler: ErrorHandler = (err) => {
-		if (!(err instanceof Error)) {
-			return new CResponse(
-				{ error: err, message: "Unknown" },
-				{ status: Status.INTERNAL_SERVER_ERROR },
-			);
-		}
-
 		if (err instanceof CError) {
 			return err.toResponse();
 		}
+
 		return new CResponse(
-			{ error: err, message: err.message },
+			{ error: err, message: "message" in err ? err.message : "Unknown" },
 			{ status: Status.INTERNAL_SERVER_ERROR },
 		);
 	};
@@ -134,15 +123,6 @@ export abstract class ServerAbstract implements ServerInterface {
 		return new CResponse(
 			{ error: true, message: `${req.method} on ${req.url} does not exist.` },
 			{ status: Status.NOT_FOUND },
-		);
-	};
-
-	protected handleMethodNotAllowed: RequestHandler = (req) =>
-		this.defaultMethodNotFoundHandler(req);
-	defaultMethodNotFoundHandler: RequestHandler = (req) => {
-		return new CResponse(
-			{ error: `${req.method} ${req.url} does not exist.` },
-			{ status: Status.METHOD_NOT_ALLOWED },
 		);
 	};
 }

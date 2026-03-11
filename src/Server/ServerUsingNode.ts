@@ -2,6 +2,7 @@ import { Config } from "@/Config/Config";
 import { Method } from "@/CRequest/enums/Method";
 import { ServerAbstract } from "@/Server/ServerAbstract";
 import type { ServeArgs } from "@/Server/types/ServeArgs";
+import { internalLogger } from "@/utils/internalLogger";
 import http from "node:http";
 import https from "node:https";
 
@@ -19,7 +20,7 @@ export class ServerUsingNode extends ServerAbstract {
 
 	async close(): Promise<void> {
 		await this.handleBeforeClose?.();
-		console.log("Closing...");
+		internalLogger.log("Closing...");
 
 		this.app?.close();
 		this.app?.closeAllConnections();

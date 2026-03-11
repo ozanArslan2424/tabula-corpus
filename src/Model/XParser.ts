@@ -11,7 +11,7 @@ import { arrIncludes } from "@/utils/arrIncludes";
 import { isObjectWith } from "@/utils/isObjectWith";
 import { objAppendEntry } from "@/utils/objAppendEntry";
 
-export class Parser {
+export class XParser {
 	static async parse<T = UnknownObject>(
 		data: unknown,
 		validate?: SchemaValidator<T>,
@@ -20,7 +20,7 @@ export class Parser {
 		const result = await validate(data);
 		if (result.issues !== undefined) {
 			const msg = this.issuesToErrorMessage(result.issues);
-			throw CError.unprocessableEntity(msg);
+			throw new CError(msg, Status.UNPROCESSABLE_ENTITY, data);
 		}
 		return result.value;
 	}
@@ -71,7 +71,7 @@ export class Parser {
 			r instanceof Request ? r : r instanceof Response ? r : r.response;
 
 		try {
-			switch (Parser.getNormalizedContentType(input)) {
+			switch (XParser.getNormalizedContentType(input)) {
 				case "json":
 					data = await this.getJsonBody(input);
 					break;

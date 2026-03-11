@@ -1,4 +1,4 @@
-import C, { X } from "@/index";
+import C, { Status, X } from "@/index";
 import { describe, expect, it } from "bun:test";
 import { createTestServer } from "./utils/createTestServer";
 import { req } from "./utils/req";
@@ -37,7 +37,7 @@ describe("C.Error", () => {
 		expect(err.isStatusOf(500)).toBe(false);
 	});
 
-	// ─── toResponse ───────────────────────────────────────────────
+	// ─── toResponse() ───────────────────────────────────────────────
 
 	it("TO RESPONSE - RETURNS CORRECT STATUS", () => {
 		const err = new C.Error("bad request", 400);
@@ -65,73 +65,11 @@ describe("C.Error", () => {
 		expect(data.message).toBe("invalid");
 	});
 
-	// ─── static methods ───────────────────────────────────────────
-
-	it("INTERNAL SERVER ERROR - DEFAULT MESSAGE", () => {
-		const err = C.Error.internalServerError();
-		expect(err.status).toBe(500);
-		expect(err.message).toBe("500");
-	});
-
-	it("INTERNAL SERVER ERROR - CUSTOM MESSAGE", () => {
-		const err = C.Error.internalServerError("custom");
-		expect(err.status).toBe(500);
-		expect(err.message).toBe("custom");
-	});
-
-	it("BAD REQUEST - DEFAULT MESSAGE", () => {
-		const err = C.Error.badRequest();
-		expect(err.status).toBe(400);
-		expect(err.message).toBe("400");
-	});
-
-	it("BAD REQUEST - CUSTOM MESSAGE", () => {
-		const err = C.Error.badRequest("invalid input");
-		expect(err.status).toBe(400);
-		expect(err.message).toBe("invalid input");
-	});
-
-	it("NOT FOUND - DEFAULT MESSAGE", () => {
-		const err = C.Error.notFound();
-		expect(err.status).toBe(404);
-		expect(err.message).toBe("404");
-	});
-
-	it("NOT FOUND - CUSTOM MESSAGE", () => {
-		const err = C.Error.notFound("resource missing");
-		expect(err.status).toBe(404);
-		expect(err.message).toBe("resource missing");
-	});
-
-	it("METHOD NOT ALLOWED - DEFAULT MESSAGE", () => {
-		const err = C.Error.methodNotAllowed();
-		expect(err.status).toBe(405);
-		expect(err.message).toBe("405");
-	});
-
-	it("METHOD NOT ALLOWED - CUSTOM MESSAGE", () => {
-		const err = C.Error.methodNotAllowed("not allowed");
-		expect(err.status).toBe(405);
-		expect(err.message).toBe("not allowed");
-	});
-
-	it("UNPROCESSABLE ENTITY - DEFAULT MESSAGE", () => {
-		const err = C.Error.unprocessableEntity();
-		expect(err.status).toBe(422);
-		expect(err.message).toBe("422");
-	});
-
-	it("UNPROCESSABLE ENTITY - CUSTOM MESSAGE", () => {
-		const err = C.Error.unprocessableEntity("validation failed");
-		expect(err.status).toBe(422);
-		expect(err.message).toBe("validation failed");
-	});
-
 	// ─── integration ──────────────────────────────────────────────
 
 	it("INTEGRATION - THROWN IN ROUTE RETURNS CORRECT STATUS", async () => {
 		new C.Route("/error-404", () => {
-			throw C.Error.notFound("not here");
+			throw new C.Error("not here", Status.NOT_FOUND);
 		});
 
 		const res = await s.handle(req("/error-404"));
@@ -140,7 +78,7 @@ describe("C.Error", () => {
 
 	it("INTEGRATION - THROWN IN ROUTE RETURNS CORRECT BODY", async () => {
 		new C.Route("/error-422", () => {
-			throw C.Error.unprocessableEntity("invalid fields");
+			throw new C.Error("invalid fields", Status.UNPROCESSABLE_ENTITY);
 		});
 
 		const res = await s.handle(req("/error-422"));

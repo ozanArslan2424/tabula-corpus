@@ -9,7 +9,6 @@ export const _routerStore = new GlobalRouterStore();
 export const _corsStore = new GlobalCorsStore();
 
 export type * from "./types.d.ts";
-
 export * from "@/C";
 export * from "@/X";
 

@@ -1,6 +1,6 @@
-import type { Cors } from "@/Cors";
+import type { XCors } from "@/XCors/XCors";
 import { StoreAbstract } from "@/Store/StoreAbstract";
 
-export class GlobalCorsStore extends StoreAbstract<Cors | null> {
-	protected value: Cors | null = null;
+export class GlobalCorsStore extends StoreAbstract<XCors | null> {
+	protected value: XCors | null = null;
 }

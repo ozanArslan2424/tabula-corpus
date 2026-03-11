@@ -4,7 +4,7 @@ import type { RouteModel } from "@/Model/types/RouteModel";
 import type { Schema } from "@/Model/types/Schema";
 
 /** If you prefer to put all schemas into a single object, this will be helpful */
-export type InferModel<T extends Record<string, any>> = {
+export type XInferModel<T extends Record<string, any>> = {
 	[K in keyof T]: T[K] extends RouteModel<any, any, any, any>
 		? Prettify<
 				(T[K]["body"] extends Schema

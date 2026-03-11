@@ -1,6 +1,7 @@
 import { Config } from "@/Config/Config";
 import { ServerAbstract } from "@/Server/ServerAbstract";
 import type { ServeArgs } from "@/Server/types/ServeArgs";
+import { internalLogger } from "@/utils/internalLogger";
 
 type ServerAppUsingBun = Bun.Server<undefined>;
 
@@ -13,7 +14,7 @@ export class ServerUsingBun extends ServerAbstract {
 
 	async close(): Promise<void> {
 		await this.handleBeforeClose?.();
-		console.log("Closing...");
+		internalLogger.log("Closing...");
 
 		await this.app?.stop(true);
 

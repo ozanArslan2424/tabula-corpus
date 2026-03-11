@@ -1,5 +1,5 @@
 import type { AnyRouteModel } from "@/Model/types/AnyRouteModel";
-import { Route } from "@/Route";
+import { Route } from "@/Route/Route";
 import type { RouteId } from "@/Route/types/RouteId";
 import type { RouterModelData } from "@/Router/types/RouterModelData";
 import { LazyMap } from "@/Store/LazyMap";

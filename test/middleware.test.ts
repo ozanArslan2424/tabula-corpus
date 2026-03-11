@@ -4,11 +4,12 @@ import { createTestServer } from "./utils/createTestServer";
 import { createTestController } from "./utils/createTestController";
 import { req } from "./utils/req";
 import { beforeEach } from "node:test";
+import { internalLogger } from "@/utils/internalLogger";
 
 const s = createTestServer();
 const middlewareData = "Hello";
 const overrideData = "world";
-const logSpy = spyOn(console, "log");
+const logSpy = spyOn(internalLogger, "log");
 beforeEach(() => logSpy.mockClear());
 
 const r1 = new C.Route("/r1", (c) => c.data);
@@ -47,7 +48,7 @@ new C.Middleware({
 new C.Middleware({
 	useOn: "*",
 	handler: (c) => {
-		console.log(c.url.pathname);
+		internalLogger.log(c.url.pathname);
 	},
 });
 

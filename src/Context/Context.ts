@@ -2,7 +2,7 @@ import type { Cookies } from "@/Cookies/Cookies";
 import type { CHeaders } from "@/CHeaders/CHeaders";
 import type { CRequest } from "@/CRequest/CRequest";
 import { CResponse } from "@/CResponse/CResponse";
-import { Parser } from "@/Model/Parser";
+import { XParser } from "@/Model/XParser";
 import type { ContextDataInterface } from "@/types.d.ts";
 import type { RouterModelData } from "@/Router/types/RouterModelData";
 
@@ -70,8 +70,8 @@ export class Context<B = unknown, S = unknown, P = unknown, R = unknown> {
 		search: Record<string, string>,
 		model?: RouterModelData<B, S, P>,
 	) {
-		ctx.body = await Parser.parseBody(req, model?.body);
-		ctx.params = await Parser.parseUrlData(params, model?.params);
-		ctx.search = await Parser.parseUrlData(search, model?.search);
+		ctx.body = await XParser.parseBody(req, model?.body);
+		ctx.params = await XParser.parseUrlData(params, model?.params);
+		ctx.search = await XParser.parseUrlData(search, model?.search);
 	}
 }

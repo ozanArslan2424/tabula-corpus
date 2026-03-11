@@ -9,8 +9,9 @@ import type { RouteModel } from "@/Model/types/RouteModel";
 import { CommonHeaders } from "@/CHeaders/enums/CommonHeaders";
 import type { StaticRouteHandler } from "@/Route/types/StaticRouteHandler";
 import type { StaticRouteDefinition } from "@/Route/types/StaticRouteDefinition";
-import { _routerStore } from "@/index";
-import { XFile } from "@/XFile";
+import { _routerStore, Status } from "@/index";
+import { XFile } from "@/XFile/XFile";
+import { internalLogger } from "@/utils/internalLogger";
 
 /**
  * Defines a route that serves a static file. Accepts a path and a {@link StaticRouteDefinition}
@@ -80,9 +81,10 @@ export class StaticRoute<
 		if (customHandler !== undefined) {
 			return async (c) => {
 				const file = new XFile(this.filePath);
-				if (!file) {
-					console.error("File not found at:", this.filePath);
-					throw CError.notFound();
+				const exists = await file.exists();
+				if (!exists) {
+					internalLogger.error("File not found at:", this.filePath);
+					throw new CError(Status.NOT_FOUND.toString(), Status.NOT_FOUND);
 				}
 				const content = await file.text();
 				c.res.headers.setMany({

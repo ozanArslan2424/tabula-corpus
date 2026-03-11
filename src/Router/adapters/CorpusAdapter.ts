@@ -1,16 +1,17 @@
 import type { RouterAdapterInterface } from "@/Router/adapters/RouterAdapterInterface";
 import type { RouterRouteData } from "@/Router/types/RouterRouteData";
-import { CError } from "@/CError/CError";
 import { isRegexMatch } from "@/utils/isRegexMatch";
 import { strIsEqual } from "@/utils/strIsEqual";
 import type { RouteId } from "@/Route/types/RouteId";
-import { Middleware, Route } from "@/index";
 import { ModelRegistry } from "@/Router/registries/ModelRegistry";
 import type { RouterReturnData } from "@/Router/types/RouterReturnData";
 import type { AnyRouteModel } from "@/Model/types/AnyRouteModel";
 import { MiddlewareRegistry } from "@/Router/registries/MiddlewareRegistry";
 import type { CRequest } from "@/CRequest/CRequest";
 import type { AnyRoute } from "@/Route/types/AnyRoute";
+import { Route } from "@/Route/Route";
+import type { Middleware } from "@/Middleware/Middleware";
+import { internalLogger } from "@/utils/internalLogger";
 
 export class CorpusAdapter implements RouterAdapterInterface {
 	// RouteId -> RouteRegistryData
@@ -39,6 +40,10 @@ export class CorpusAdapter implements RouterAdapterInterface {
 		let route: RouterRouteData | null = null;
 
 		for (const data of this.routes.values()) {
+			// Method not allowed shouldn't be defaulted for security
+			// so skip wrong methods
+			if (method !== data.method) continue;
+
 			// Check for pattern match for parameterized routes
 			if (
 				this.hasAnyParam(data.endpoint) &&
@@ -66,12 +71,7 @@ export class CorpusAdapter implements RouterAdapterInterface {
 		}
 
 		if (route === null) {
-			throw CError.notFound();
-		}
-
-		// The endpoint exists but the method is not allowed
-		if (!strIsEqual(method, route.method, "upper")) {
-			throw CError.methodNotAllowed();
+			return null;
 		}
 
 		return {
@@ -90,25 +90,25 @@ export class CorpusAdapter implements RouterAdapterInterface {
 	checkPossibleCollision(n: RouterRouteData): boolean {
 		// Collision 1 — exact duplicate route id (same method + same endpoint)
 		const dupeMsg = (nId: string) =>
-			console.error(
+			internalLogger.error(
 				`Duplicate route detected. ${nId} has already been registered.`,
 			);
 
 		// Collision 2 — two param routes match the same URL space
 		const dynamicPatternMsg = (nId: string, oId: string) =>
-			console.error(
+			internalLogger.error(
 				`Ambiguous dynamic routes. ${nId} and ${oId} match the same URL patterns.`,
 			);
 
 		// Collision 3 — new param route's base matches an existing route
 		const baseDupeMsg = (nId: string, oId: string) =>
-			console.error(
+			internalLogger.error(
 				`Dynamic route overlaps existing route. ${nId} — dropping the last param segment matches ${oId}.`,
 			);
 
 		// Collision 4 — new route falls within an existing param route's URL space
 		const shadowMsg = (nId: string, oId: string) =>
-			console.error(
+			internalLogger.error(
 				`Route shadowed by existing dynamic route. ${nId} will be unreachable — ${oId} captures the same URL space.`,
 			);
 
