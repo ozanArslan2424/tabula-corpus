@@ -14,8 +14,6 @@ export class Router {
 		this._adapter = adapter ?? new CorpusAdapter();
 	}
 
-	models: AnyRouteModel[] = [];
-	middlewares: Middleware[] = [];
 	private _adapter: RouterAdapterInterface;
 	private cache = new WeakMap<CRequest, Func<[], Promise<CResponse>>>();
 
@@ -27,22 +25,20 @@ export class Router {
 	}
 
 	addModel(route: AnyRoute, model: AnyRouteModel): void {
-		this.models.push(model);
 		this._adapter.addModel(route, model);
 	}
 
 	addMiddleware(middleware: Middleware): void {
-		this.middlewares.push(middleware);
 		this._adapter.addMiddleware(middleware);
 	}
 
-	addRoute(r: AnyRoute): void {
+	addRoute(route: AnyRoute): void {
 		this._adapter.addRoute({
-			id: r.id,
-			endpoint: r.endpoint,
-			method: r.method,
-			handler: r.handler,
-			pattern: r.pattern,
+			id: route.id,
+			endpoint: route.endpoint,
+			method: route.method,
+			handler: route.handler,
+			pattern: route.pattern,
 		});
 	}
 
